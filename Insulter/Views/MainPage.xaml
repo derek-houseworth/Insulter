@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Insulter.Views.MainPage"
+             Padding="15"
+             Title="Shakespearean Insulter"
+             BackgroundColor="OldLace">
+             <!--BackgroundColor="#484848">-->
+   
+    <Grid RowDefinitions="auto,*">
+        
+        <HorizontalStackLayout Grid.Row="0" 
+                               HorizontalOptions="CenterAndExpand"
+                               Padding="0,5,0,15">
+                <Label Text="Voice: " 
+                       TextColor="Black"
+                       TranslationY="11"
+                       Margin="0,0,10,0"
+                       FontAttributes="Bold"/>
+                <Picker ItemsSource="{Binding Path=LocalesList}"
+                        ItemDisplayBinding ="{Binding Name, StringFormat='{0}'}"
+                        SelectedItem="{Binding Path=SelectedLocale, Mode=TwoWay}"
+                        TextColor="Black"
+                        WidthRequest="300"/>
+            </HorizontalStackLayout>
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout x:Name="stackLayoutInsults"
+                                     Padding="10"
+                                     HorizontalOptions="CenterAndExpand">
+                </VerticalStackLayout>
+            </ScrollView>
+    </Grid>
+
+</ContentPage>
