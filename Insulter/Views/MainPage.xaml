@@ -4,7 +4,7 @@
              x:Class="Insulter.Views.MainPage"
              Padding="15"
              Title="Shakespearean Insulter"
-             BackgroundColor="OldLace">
+             BackgroundColor="AntiqueWhite">
              <!--BackgroundColor="#484848">-->
    
     <Grid RowDefinitions="auto,*">
