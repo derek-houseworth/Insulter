@@ -94,7 +94,7 @@ namespace Insulter.ViewModels
         } //TextToSpeak
 
 
-        private bool _initialized;
+        internal bool _initialized;
         public bool Initialized
         {
             get { return _initialized; }

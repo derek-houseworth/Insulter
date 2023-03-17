@@ -6,15 +6,12 @@ public partial class MainPage : ContentPage
 {
     private Label _labelInsult = null;
 
-    InsulterViewModel _insulterViewModel;
-
     public MainPage(InsulterViewModel viewModel)
 	{
 		InitializeComponent();
 
-        _insulterViewModel = viewModel;
-        _insulterViewModel.SpeakingComplete += OnInsultSpoken;
-        BindingContext = _insulterViewModel;
+        viewModel.SpeakingComplete += OnInsultSpoken;
+        BindingContext = viewModel;
 
 
         DisplayInsults();
@@ -22,11 +19,13 @@ public partial class MainPage : ContentPage
 
         Application.Current.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
         {
-            if (_insulterViewModel.Initialized)
+        if (((InsulterViewModel)BindingContext).Initialized)
             {
                 SpeakInsult((Label)stackLayoutInsults.Children[0]);
             }
-            return !_insulterViewModel.Initialized;
+
+            //terminate timer because speaking intro phrase is a one time operation 
+            return !((InsulterViewModel)BindingContext).Initialized;
         });
 
     }
@@ -62,7 +61,7 @@ public partial class MainPage : ContentPage
     {
         stackLayoutInsults.Children.Clear();
 
-        foreach (string insult in _insulterViewModel.InsultsList)
+        foreach (string insult in ((InsulterViewModel)BindingContext).InsultsList)
         {
             stackLayoutInsults.Children.Add(GetInsultLabel(insult));
         }
@@ -75,7 +74,6 @@ public partial class MainPage : ContentPage
         {
             Text = insultText,
             FontSize = DeviceInfo.Idiom == DeviceIdiom.Phone ? 42 : 62, 
-            //FontAttributes = FontAttributes.Bold,
             TextColor = Color.FromRgb(0, 255, 0),
             FontFamily = "BlackAdderITCRegular"
         };
@@ -92,15 +90,15 @@ public partial class MainPage : ContentPage
         _labelInsult = label;
         UpdateInsultStatus(false);
         _labelInsult.TextColor = Color.FromRgb(255, 127, 39);
-        _labelInsult.FontAttributes = /*FontAttributes.Bold |*/ FontAttributes.Italic;
+        _labelInsult.FontAttributes = FontAttributes.Italic;
 
         int indexInsult = stackLayoutInsults.Children.IndexOf(_labelInsult);
-        _insulterViewModel.SpeakInsult(indexInsult);
+        ((InsulterViewModel)BindingContext).SpeakInsult(indexInsult);
     }
 
     private void OnInsultTapped(object sender, EventArgs e)
     {
-        if (!_insulterViewModel.SpeakingNow)
+        if (!((InsulterViewModel)BindingContext).SpeakingNow)
         {
             SpeakInsult((Label)sender);
         }

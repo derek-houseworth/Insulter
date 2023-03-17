@@ -5,7 +5,6 @@
              Padding="15"
              Title="Shakespearean Insulter"
              BackgroundColor="AntiqueWhite">
-             <!--BackgroundColor="#484848">-->
    
     <Grid RowDefinitions="auto,*">
         
