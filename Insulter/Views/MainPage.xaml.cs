@@ -17,18 +17,19 @@ public partial class MainPage : ContentPage
         DisplayInsults();
         UpdateInsultStatus(false);
 
+        //timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
         Application.Current.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
         {
-        if (((InsulterViewModel)BindingContext).Initialized)
+            if (((InsulterViewModel)BindingContext).Initialized)
             {
                 SpeakInsult((Label)stackLayoutInsults.Children[0]);
             }
 
-            //terminate timer because speaking intro phrase is a one time operation 
+            //terminate timer after intro phrase has been spoken
             return !((InsulterViewModel)BindingContext).Initialized;
         });
 
-    }
+    } //MainPage
 
     private void OnInsultSpoken()
     {
@@ -70,7 +71,7 @@ public partial class MainPage : ContentPage
 
     private Label GetInsultLabel(string insultText)
     {
-        Label insultLabel = new Label
+        Label insultLabel = new() 
         {
             Text = insultText,
             FontSize = DeviceInfo.Idiom == DeviceIdiom.Phone ? 42 : 62, 

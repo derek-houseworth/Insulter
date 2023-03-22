@@ -49,19 +49,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="InsultData\insultAdjectives.txt" />
-	  <None Remove="InsultData\insultAdverbs.txt" />
-	  <None Remove="InsultData\insultNouns.txt" />
+	  <None Remove="Data\insultAdjectives.txt" />
+	  <None Remove="Data\insultAdverbs.txt" />
+	  <None Remove="Data\insultNouns.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="InsultData\insultAdjectives.txt">
+	  <EmbeddedResource Include="Data\insultAdjectives.txt">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="InsultData\insultAdverbs.txt">
+	  <EmbeddedResource Include="Data\insultAdverbs.txt">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="InsultData\insultNouns.txt">
+	  <EmbeddedResource Include="Data\insultNouns.txt">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	</ItemGroup>
@@ -71,6 +71,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="NewFolder\" />
 	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 

@@ -5,7 +5,13 @@ namespace Insulter.ViewModels;
 public class InsulterViewModel : TextToSpeechViewModel 
 {
 
-    private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter!";
+    private const string ADJECTIVES_FILE_NAME = "Insulter.Data.insultAdjectives.txt";
+    private const string ADVERBS_FILE_NAME = "Insulter.Data.insultAdverbs.txt";
+    private const string NOUNS_FILE_NAME = "Insulter.Data.insultNouns.txt";
+
+    private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
+
+    private Insults _insults;
 
     /// <summary>
     /// insults list
@@ -24,8 +30,9 @@ public class InsulterViewModel : TextToSpeechViewModel
     /// </summary>
     public InsulterViewModel()
     {
+        _insults = new Insults(ADJECTIVES_FILE_NAME, ADVERBS_FILE_NAME, NOUNS_FILE_NAME);
 
-        _insultsList = new Insults().InsultsList;
+        _insultsList = _insults.InsultsList;
         _initialized &= InsultsList.Count > 0;
         InsultsList.Insert(0, WELCOME_MESSAGE);
 
@@ -57,7 +64,7 @@ public class InsulterViewModel : TextToSpeechViewModel
             InsultsList.RemoveAt(index);
             if (0 == InsultsList.Count)
             {
-                _insultsList = new Insults().InsultsList;
+                _insultsList = _insults.InsultsList;
             }
         }
 
