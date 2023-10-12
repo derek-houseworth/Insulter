@@ -5,9 +5,10 @@ namespace Insulter.ViewModels;
 public class InsulterViewModel : TextToSpeechViewModel 
 {
 
-    private const string ADJECTIVES_FILE_NAME = "Insulter.Data.insultAdjectives.txt";
-    private const string ADVERBS_FILE_NAME = "Insulter.Data.insultAdverbs.txt";
-    private const string NOUNS_FILE_NAME = "Insulter.Data.insultNouns.txt";
+    private const string DATA_FILE_PATH = "Insulter.Data.";
+	private const string ADJECTIVES_FILE_NAME = DATA_FILE_PATH  + "insultAdjectives.txt";
+    private const string ADVERBS_FILE_NAME = DATA_FILE_PATH + "insultAdverbs.txt";
+    private const string NOUNS_FILE_NAME = DATA_FILE_PATH + "insultNouns.txt";
 
     private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
 
