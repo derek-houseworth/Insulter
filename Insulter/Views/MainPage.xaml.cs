@@ -6,13 +6,18 @@ public partial class MainPage : ContentPage
 {
     private Label _labelInsult = null;
 
+    /// <summary>
+    /// initializes user interface and hooks up view model, speaks welcome message
+    /// </summary>
+    /// <param name="viewModel"></param>
     public MainPage(InsulterViewModel viewModel)
 	{
 		InitializeComponent();
 
+        //update view model with UI method to be called when speaking complete
         viewModel.SpeakingComplete += OnInsultSpoken;
-        BindingContext = viewModel;
 
+        BindingContext = viewModel;
 
         DisplayInsults();
         UpdateInsultStatus(false);
@@ -31,7 +36,12 @@ public partial class MainPage : ContentPage
 
     } //MainPage
 
-    private void OnInsultSpoken()
+
+	/// <summary>
+	/// called by view model when speaking complete to update user interface by 
+    /// removing most recently spoken insult and reseting status of remaining insults
+	/// </summary>
+	private void OnInsultSpoken()
     {
 
         int indexSpokenInsult = stackLayoutInsults.Children.IndexOf(_labelInsult);
@@ -49,6 +59,11 @@ public partial class MainPage : ContentPage
     } //OnInsultSpoken
 
 
+    /// <summary>
+    /// toggles color & enabled status of insults labels at beginning and end of speaking, i.e. 
+    /// disable all insults while speaking and enable remaining when speaking complete
+    /// /// </summary>
+    /// <param name="insultsEnabled"></param>
     private void UpdateInsultStatus(bool insultsEnabled)
     {
         foreach (Label labelInsult in stackLayoutInsults.Children)
@@ -56,9 +71,14 @@ public partial class MainPage : ContentPage
             labelInsult.IsEnabled = insultsEnabled;
             labelInsult.TextColor = insultsEnabled ? Color.FromRgb(72,72,72) : Color.FromRgb(157,157,157);
         }
-    }
 
-    private void DisplayInsults()
+	} //UpdateInsultStatus
+
+
+	/// <summary>
+	/// creates label for each insult and adds to main stack layout
+	/// </summary>
+	private void DisplayInsults()
     {
         stackLayoutInsults.Children.Clear();
 
@@ -67,9 +87,10 @@ public partial class MainPage : ContentPage
             stackLayoutInsults.Children.Add(GetInsultLabel(insult));
         }
 
-    }
+	} //DisplayInsults
 
-    private Label GetInsultLabel(string insultText)
+
+	private Label GetInsultLabel(string insultText)
     {
         Label insultLabel = new() 
         {
@@ -86,6 +107,13 @@ public partial class MainPage : ContentPage
 
     }
 
+
+    /// <summary>
+    /// updates user interface to highlight selected insult currenty being spoken and disable 
+    /// all other insults then calls view model to speak insult at specified index in 
+    /// view model's insults list
+    /// </summary>
+    /// <param name="label"></param>
     private void SpeakInsult(Label label)
     {
         _labelInsult = label;
@@ -95,16 +123,23 @@ public partial class MainPage : ContentPage
 
         int indexInsult = stackLayoutInsults.Children.IndexOf(_labelInsult);
         ((InsulterViewModel)BindingContext).SpeakInsult(indexInsult);
-    }
 
-    private void OnInsultTapped(object sender, EventArgs e)
+	} //SpeakInsult
+
+
+	/// <summary>
+	/// handles tapped event for each label containing insults
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void OnInsultTapped(object sender, EventArgs e)
     {
+
         if (!((InsulterViewModel)BindingContext).SpeakingNow)
         {
             SpeakInsult((Label)sender);
         }
-    }
 
+	} //OnInsultTapped
 
 }
-
