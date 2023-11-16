@@ -1,4 +1,5 @@
 ﻿using Insulter.Models;
+using System.Diagnostics;
 
 namespace Insulter.ViewModels;
 
@@ -12,12 +13,13 @@ public class InsulterViewModel : TextToSpeechViewModel
 
     private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
 
-    private Insults _insults;
+    private readonly Insults _insults;
 
-    /// <summary>
-    /// insults list
-    /// </summary>
-    private List<string> _insultsList;
+
+	/// <summary>
+	/// insults list
+	/// </summary>
+	private List<string> _insultsList;
     public List<string> InsultsList
     {
         get => _insultsList; 
@@ -70,5 +72,7 @@ public class InsulterViewModel : TextToSpeechViewModel
         }
 
     } //DeleteInsultAt
+
+
 
 } //InsulterViewModel

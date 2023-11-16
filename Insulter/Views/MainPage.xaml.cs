@@ -60,7 +60,7 @@ public partial class MainPage : ContentPage
 
 
     /// <summary>
-    /// toggles color & enabled status of insults labels at beginning and end of speaking, i.e. 
+    /// toggles color and enabled status of insults labels at beginning and end of speaking, i.e. 
     /// disable all insults while speaking and enable remaining when speaking complete
     /// /// </summary>
     /// <param name="insultsEnabled"></param>

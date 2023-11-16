@@ -6,43 +6,57 @@ namespace Insulter.ViewModels;
 public class TextToSpeechViewModel : ViewModelBase
 {
 
-    /// <summary>
-    /// Delegate to be called when current utterance has completed
-    /// </summary>
-    public delegate void SpeakingCompleteHandler();
+	private const string APP_SETTINGS_LOCALE_INDEX_KEY = nameof(SelectedLocale);
+	private const string APP_SETTINGS_VOLUME_KEY = nameof(Volume);
+	private const string APP_SETTINGS_PITCH_KEY = nameof(Pitch);
+
+
+	/// <summary>
+	/// Delegate to be called when current utterance has completed
+	/// </summary>
+	public delegate void SpeakingCompleteHandler();
     public event SpeakingCompleteHandler SpeakingComplete;
 
+
     /// <summary>
-    /// Command to utter text from TextToSpeak property
+    /// Command to initiate speaking of text contained in TextToSpeak property
     /// </summary>
     public ICommand SpeakNowAsyncCommand { private set; get; }
 
 
-    private IList<Locale> _localesList;        
-    /// <summary>
-    /// List of locale objects representing TTS voices currently installed on device.
-    /// </summary>
-    public IList<Locale> LocalesList
+	/// <summary>
+	/// List of locale objects representing TTS voices currently installed on device
+	/// </summary>
+	private IList<Locale> _localesList;
+	public IList<Locale> LocalesList
     {
         get { return _localesList; }
         private set { SetProperty(ref _localesList, value); }
 
     } //LocalesList
 
-    private Locale _selectedLocale;
-    /// <summary>
-    /// 
-    /// </summary>
-    public Locale SelectedLocale
+
+	/// <summary>
+	/// Locale object currently selected from locales list to be used when speaking
+	/// </summary>
+	private Locale _selectedLocale;
+	public Locale SelectedLocale
     {
         get { return _selectedLocale; }
-        set { SetProperty(ref _selectedLocale, value); }
+        set 
+        {
+            if (value != null)
+            {
+                _selectedLocale = value;
+				OnPropertyChanged(nameof(SelectedLocale));
+			}
+		}
 
     } //SelectedLocale
 
 
     /// <summary>
-    /// 
+    /// true while speaking in progress, false otherwise
     /// </summary>
     private bool _speakingNow;
     public bool SpeakingNow
@@ -53,38 +67,45 @@ public class TextToSpeechViewModel : ViewModelBase
     } //SpeakingNow
 
 
-    const double VOLUME_MIN = 0.0;
-    const double VOLUME_MAX = 1.0;
-    private double _volume = 0.5;
-    public double Volume
+    /// <summary>
+    /// Speaker volume for voice
+    /// </summary>
+    const float VOLUME_MIN = 0.0f;
+    const float VOLUME_MAX = 1.0f;
+    private float _volume;
+	public float Volume
     {
         get { return _volume; }
         set
         {
-            if (_volume != Math.Clamp(value, VOLUME_MIN, VOLUME_MAX))
-            {
-                SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
-            }
+            _volume = Math.Clamp(value, VOLUME_MIN, VOLUME_MAX);
+            OnPropertyChanged(nameof(Volume));
         }
 
     } //Volume
 
-    const double PITCH_MIN = 0.01;
-    const double PITCH_MAX = 2.0;
-    private double _pitch;
-    public double Pitch
+
+    /// <summary>
+    /// Pitch for voice 
+    /// </summary>
+    const float PITCH_MIN = 0.01f;
+    const float PITCH_MAX = 2.0f;
+    private float _pitch;
+    public float Pitch
     {
         get { return _pitch; }
         set
         {
-            if (_pitch != Math.Clamp(value, PITCH_MIN, PITCH_MAX))
-            {
-                SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));
-            }
-        }
+            _pitch = Math.Clamp(value, PITCH_MIN, PITCH_MAX);
+			OnPropertyChanged(nameof(Pitch));
+		}
 
     } //Pitch
 
+
+    /// <summary>
+    /// Text of phrase to be spoken
+    /// </summary>
     private string _textToSpeak;
     public string TextToSpeak
     {
@@ -94,6 +115,9 @@ public class TextToSpeechViewModel : ViewModelBase
     } //TextToSpeak
 
 
+    /// <summary>
+    /// true if view model initialization has successfully completed, false otherwise
+    /// </summary>
     internal bool _initialized;
     public bool Initialized
     {
@@ -103,63 +127,111 @@ public class TextToSpeechViewModel : ViewModelBase
 
 
     /// <summary>
-    /// 
+    /// view model constructor, starts async initialization of view model
     /// </summary>
     public TextToSpeechViewModel()
     {
-        Initialized = false;
-        InitializeLocalesListAsync();
-        SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return !SpeakingNow; });
-
-        Volume = 0.5f;
-        Pitch = 1.0f;
-
-
-        ((Command)SpeakNowAsyncCommand).ChangeCanExecute();
+        InitializeViewModelAsync();
 
     } //TextToSpeechViewModel
 
-    private Task InitializeLocalesListAsync()
+
+    /// <summary>
+    /// prepares locales list, restores view model persisted state, updates command enabled status
+    /// </summary>
+    /// <returns></returns>
+    private Task InitializeViewModelAsync()
     {
-        return Task.Run(async () => {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            //Debug.WriteLine("*** InitializeLocalesList: start...");
+        return Task.Run(async () => 
+        {
+
+			Initialized = false;
+
+			Debug.WriteLine("*** InitializeViewModelAsync: start");
+			Stopwatch sw = new();
+			sw.Start();		
+
+            //build and sort voice locales list
             IEnumerable<Locale> locales = await TextToSpeech.GetLocalesAsync();
-            List<Locale> localesList = new List<Locale>();
+            List<Locale> localesList = new ();
             foreach (Locale locale in locales)
             {
                 //Debug.WriteLine(locale.Name);
                 localesList.Add(locale);
             }
-            localesList.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
+			Debug.WriteLine($"InitializeViewModelAsync: found {localesList.Count} locales");
+			localesList.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));            
             LocalesList = localesList;
-            try
-            {
-                SelectedLocale = LocalesList.Single(locale => locale.Name == "English (United States)");
-            }
-            catch
-            {
-                SelectedLocale = LocalesList.FirstOrDefault();
-            }
-            Initialized = true;
-            Debug.WriteLine("*** InitializeLocalesList: completed in {0:N} seconds", sw.ElapsedMilliseconds / 1000);
 
-        });
-    }
+            //view model state can be restored after locales list successfully generated
+            RestoreState();
 
-    public async void SpeakNowAsync()
+			SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return !SpeakingNow; });
+
+			((Command)SpeakNowAsyncCommand).ChangeCanExecute();
+
+			Initialized = true;
+			Debug.WriteLine("*** InitializeViewModelAsync: completed in {0:N} ms", sw.Elapsed.Milliseconds);
+
+		});
+
+	} //InitializeViewModelAsync
+
+
+	/// <summary>
+    /// saves view model persisted property value in application preferences key/value store
+    /// </summary>
+    public void SaveState()
+	{
+
+        if (LocalesList != null)
+        {
+            Preferences.Set(APP_SETTINGS_LOCALE_INDEX_KEY, LocalesList.IndexOf(SelectedLocale));
+        }
+
+		Preferences.Set(APP_SETTINGS_VOLUME_KEY, Volume);
+		Preferences.Set(APP_SETTINGS_PITCH_KEY, Pitch);
+
+	} //SaveState
+
+
+	/// <summary>
+	/// restores view model persisted data from application prefereences key/value store,
+	/// sets peroperty values to defaults if no persisted property values found
+    /// method is private because initialization of LocalesList has to asyncrhonously complete before 
+    /// view model state can be restored
+	/// </summary>
+	private void RestoreState()
+	{
+
+        if (LocalesList != null)
+        {
+            SelectedLocale = LocalesList[Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0)];
+        }
+
+        Volume = Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX/2 + VOLUME_MIN));
+		Pitch = Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX/2 + PITCH_MIN));
+
+	} //RestoreState
+
+
+	/// <summary>
+	/// disables SpeakNowAsync view model command and calls MAUI API to asynchronously speak text specified 
+	/// by TextToSpeaker property using locale (voice), pitch and volume values from respective properties, 
+	/// </summary>
+	public async void SpeakNowAsync()
     {
 
-        if (!Initialized) 
+        if (!Initialized || LocalesList == null) 
         { 
             return; 
-        } 
-        
+        }
+
+        SelectedLocale ??= LocalesList[0];
         var speechOptions = new SpeechOptions()
         {
-            Volume = (float)Volume,
-            Pitch = (float)Pitch,
+            Volume = Volume,
+            Pitch = Pitch,
             //Locale = _locales.ElementAt<Locale>(_random.Next(0, _locales.Count())) //.FirstOrDefault();
             Locale = SelectedLocale
         };
@@ -182,4 +254,5 @@ public class TextToSpeechViewModel : ViewModelBase
         }, TaskScheduler.FromCurrentSynchronizationContext());
 
     } //SpeakNowAsync
-}
+
+} //TextToSpeechViewModel

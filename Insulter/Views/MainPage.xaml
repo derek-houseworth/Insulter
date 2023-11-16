@@ -8,20 +8,57 @@
    
     <Grid RowDefinitions="auto,*">
         
-        <HorizontalStackLayout Grid.Row="0" 
+        <VerticalStackLayout Grid.Row="0" 
                                HorizontalOptions="CenterAndExpand"
-                               Padding="0,5,0,15">
+                               Padding="0,0,0,15">
+            <Grid RowDefinitions="auto,auto,auto"
+                  ColumnDefinitions="auto,*">
                 <Label Text="Voice: " 
                        TextColor="Black"
                        TranslationY="11"
                        Margin="0,0,10,0"
-                       FontAttributes="Bold"/>
+                       FontAttributes="Bold"
+                       Grid.Row="0"
+                       Grid.Column="0"/>
                 <Picker ItemsSource="{Binding Path=LocalesList}"
                         ItemDisplayBinding ="{Binding Name, StringFormat='{0}'}"
                         SelectedItem="{Binding Path=SelectedLocale, Mode=TwoWay}"
                         TextColor="Black"
-                        WidthRequest="300"/>
-            </HorizontalStackLayout>
+                        Margin="10,0,0,0"
+                        Grid.Row="0"
+                        Grid.Column="1"/>
+                <Label Text="Pitch: " 
+                       TextColor="Black"
+                       TranslationY="11"
+                       Margin="0,0,10,0"
+                       FontAttributes="Bold"                        
+                       Grid.Row="1"
+                       Grid.Column="0"/>
+                <Slider Value="{Binding Path=Pitch, Mode=TwoWay}"
+                        WidthRequest="300"
+                        Minimum="0.01"
+                        Maximum="2.0"
+                        Margin="0,15,0,0"
+                        IsEnabled="{Binding Path=Initialized}"
+                        Grid.Row="1"
+                        Grid.Column="1"/>
+                <Label Text="Volume: " 
+                       TextColor="Black"
+                       TranslationY="11"
+                       Margin="0,0,10,0"
+                       FontAttributes="Bold"
+                       Grid.Row="2"
+                       Grid.Column="0"/>
+                <Slider Value="{Binding Path=Volume, Mode=TwoWay}"
+                        WidthRequest="300"
+                        Minimum="0.0"
+                        Maximum="1.0"
+                        Margin="0,15,0,0"
+                        IsEnabled="{Binding Path=Initialized}"
+                        Grid.Row="2"
+                        Grid.Column="1"/>
+        </Grid>
+        </VerticalStackLayout>
             <ScrollView Grid.Row="1">
                 <VerticalStackLayout x:Name="stackLayoutInsults"
                                      Padding="10"
