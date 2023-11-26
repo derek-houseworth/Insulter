@@ -15,29 +15,39 @@ public class InsulterWindow : Window
 	public InsulterWindow() : base() { }
 	public InsulterWindow(MainPage page) : base(page)
 	{
-		_mainPage = page;
-	}
 
-	//called on app launch before main page visible
+		_mainPage = page;
+
+	} //InsulterWindow
+
+
+	/// <summary>
+	/// called on app launch before main page visible
+	/// </summary>
 	protected override void OnCreated()
 	{
-	}
+	} //OnCreated
+
 
 	/// <summary>
 	/// called when app loses focus
 	/// </summary>
 	protected override void OnDeactivated()
 	{
+
 		((InsulterViewModel)_mainPage.BindingContext).SaveState();
-	}
-	
+
+	} //OnDeactivated
+
+
 	/// <summary>
 	/// called when app is shuttig down
 	/// </summary>
 	protected override void OnDestroying()
 	{
+
 		((InsulterViewModel)_mainPage.BindingContext).SaveState();
-	}
+
+	} //OnDestroying
 
 } //InsulterWindow
-
