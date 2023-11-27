@@ -71,7 +71,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="NewFolder\" />
 	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 
