@@ -25,6 +25,7 @@ internal class InsultBuilderService
 
 	} //InsultBuilderService
 
+
 	/// <summary>
 	/// determines if word begins with a vowel
 	/// </summary>
@@ -33,8 +34,8 @@ internal class InsultBuilderService
 	private static bool StartsWithVowel(string word)
     {
 
-        char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
-        return vowels.Contains(word.ToLower()[0]);
+		char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+        return vowels.Contains(word.ToLower()[0]);        
 
 	} //StartsWithVowel
 
@@ -48,9 +49,9 @@ internal class InsultBuilderService
     {
         Random random = new();
 
-        List<string> adjectives = ReadWordListFromResource(_adjectivesFile);
-        List<string> adverbs = ReadWordListFromResource(_adverbsFile);
-        List<string> nouns = ReadWordListFromResource(_nounsFile);
+        List<string> adjectives = ReadWordListFromResource(_adjectivesFile),
+            adverbs = ReadWordListFromResource(_adverbsFile),
+            nouns = ReadWordListFromResource(_nounsFile);
         var insultsList = new List<string>();
 
         while (adjectives.Count > 0)
@@ -90,17 +91,22 @@ internal class InsultBuilderService
     /// <returns>List<string> containing words read from resource file</string></returns>
     private static List<string> ReadWordListFromResource(string resourceID)
     {
-        List<string> insultWordsList = new();
-        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceID);
-        using StreamReader reader = new(stream);
+		if (resourceID is null)
+		{
+			throw new ArgumentNullException(nameof(resourceID));
+		}
 
-        string line;
-        while (null != (line = reader.ReadLine()))
-        {
-            insultWordsList.Add(line);
-        }
-
-        return insultWordsList;
+		List<string> insultWordsList = new();
+        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceID))
+        {            
+            using StreamReader reader = new(stream);
+            string line;
+            while (null != (line = reader.ReadLine()))
+            {
+                insultWordsList.Add(line);
+            }
+		}
+		return insultWordsList;
 
     } //ReadWordListFromResource
 

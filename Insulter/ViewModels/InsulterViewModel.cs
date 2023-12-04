@@ -1,20 +1,11 @@
 ﻿using Insulter.Models;
-using System.Diagnostics;
 
 namespace Insulter.ViewModels;
 
 public class InsulterViewModel : TextToSpeechViewModel 
 {
 
-    private const string DATA_FILE_PATH = "Insulter.Data.";
-	private const string ADJECTIVES_FILE_NAME = DATA_FILE_PATH  + "insultAdjectives.txt";
-    private const string ADVERBS_FILE_NAME = DATA_FILE_PATH + "insultAdverbs.txt";
-    private const string NOUNS_FILE_NAME = DATA_FILE_PATH + "insultNouns.txt";
-
     private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
-
-    private readonly Insults _insults;
-
 
 	/// <summary>
 	/// insults list
@@ -33,9 +24,7 @@ public class InsulterViewModel : TextToSpeechViewModel
     /// </summary>
     public InsulterViewModel()
     {
-        _insults = new Insults(ADJECTIVES_FILE_NAME, ADVERBS_FILE_NAME, NOUNS_FILE_NAME);
-
-        _insultsList = _insults.InsultsList;
+        _insultsList = new Insults().InsultsList;
         _initialized &= InsultsList.Count > 0;
         InsultsList.Insert(0, WELCOME_MESSAGE);
 
@@ -67,8 +56,8 @@ public class InsulterViewModel : TextToSpeechViewModel
             InsultsList.RemoveAt(index);
             if (0 == InsultsList.Count)
             {
-                _insultsList = _insults.InsultsList;
-            }
+				_insultsList = new Insults().InsultsList;
+			}
         }
 
     } //DeleteInsultAt
