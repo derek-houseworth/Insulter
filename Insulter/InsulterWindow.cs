@@ -10,7 +10,7 @@ namespace Insulter;
 public class InsulterWindow : Window
 {
 
-	private readonly MainPage _mainPage;
+	private readonly MainPage? _mainPage;
 
 	public InsulterWindow() : base() { }
 	public InsulterWindow(MainPage page) : base(page)
@@ -35,18 +35,23 @@ public class InsulterWindow : Window
 	protected override void OnDeactivated()
 	{
 
-		((InsulterViewModel)_mainPage.BindingContext).SaveState();
+		if (_mainPage is not null)
+		{
+			((InsulterViewModel)_mainPage.BindingContext).SaveState();
+		}
 
 	} //OnDeactivated
 
 
 	/// <summary>
-	/// called when app is shuttig down
+	/// called when app is shutting down
 	/// </summary>
 	protected override void OnDestroying()
 	{
-
-		((InsulterViewModel)_mainPage.BindingContext).SaveState();
+		if (_mainPage is not null)
+		{
+			((InsulterViewModel)_mainPage.BindingContext).SaveState();
+		}
 
 	} //OnDestroying
 

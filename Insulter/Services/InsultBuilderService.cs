@@ -85,26 +85,28 @@ internal class InsultBuilderService
 
 
     /// <summary>
-    /// loads word list from resource file specifed by resourceID
+    /// loads word list from resource file specified by resourceID
     /// </summary>
     /// <param name="resourceID">name of resource file containing words in text format, 1 word per line</param>
     /// <returns>List<string> containing words read from resource file</string></returns>
     private static List<string> ReadWordListFromResource(string resourceID)
     {
-		if (resourceID is null)
-		{
-			throw new ArgumentNullException(nameof(resourceID));
-		}
+		ArgumentNullException.ThrowIfNull(resourceID);
 
-		List<string> insultWordsList = new();
-        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceID))
-        {            
+		List<string> insultWordsList = [];
+		using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceID);
+		if (stream is not null)
+		{
             using StreamReader reader = new(stream);
-            string line;
-            while (null != (line = reader.ReadLine()))
-            {
-                insultWordsList.Add(line);
-            }
+            if (reader is not null)
+			{
+				do
+				{
+					string? line = reader.ReadLine();
+					if (line is null) break;
+					insultWordsList.Add(line);
+				} while (true);
+			}
 		}
 		return insultWordsList;
 

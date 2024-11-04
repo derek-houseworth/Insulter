@@ -4,7 +4,7 @@ namespace Insulter.Views;
 
 public partial class MainPage : ContentPage
 {
-    private Label _labelInsult = null;
+    private Label? _labelInsult = null;
 
     /// <summary>
     /// initializes user interface and hooks up view model, speaks welcome message
@@ -23,23 +23,27 @@ public partial class MainPage : ContentPage
         UpdateInsultStatus(false);
 
         //timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
-        Application.Current.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
+        if (Application.Current is not null)
         {
-            if (((InsulterViewModel)BindingContext).Initialized)
-            {
-                SpeakInsult((Label)stackLayoutInsults.Children[0]);
-            }
+			Application.Current.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
+			{
+				if (((InsulterViewModel)BindingContext).Initialized)
+				{
+					SpeakInsult((Label)stackLayoutInsults.Children[0]);
+				}
 
-            //terminate timer after intro phrase has been spoken
-            return !((InsulterViewModel)BindingContext).Initialized;
-        });
+				//terminate timer after intro phrase has been spoken
+				return !((InsulterViewModel)BindingContext).Initialized;
+			});
 
-    } //MainPage
+		}
+
+	} //MainPage
 
 
 	/// <summary>
 	/// called by view model when speaking complete to update user interface by 
-    /// removing most recently spoken insult and reseting status of remaining insults
+    /// removing most recently spoken insult and resetting status of remaining insults
 	/// </summary>
 	private void OnInsultSpoken()
     {
@@ -99,17 +103,17 @@ public partial class MainPage : ContentPage
             TextColor = Color.FromRgb(0, 255, 0),
             FontFamily = "BlackAdderITCRegular"
         };
-        TapGestureRecognizer tgr = new();
-        tgr.Tapped += OnInsultTapped;
-        insultLabel.GestureRecognizers.Add(tgr);
+		TapGestureRecognizer tgr = new();
+		tgr.Tapped += OnInsultTapped;
+		insultLabel.GestureRecognizers.Add(tgr);
 
-        return insultLabel;
+		return insultLabel;
 
     }
 
 
     /// <summary>
-    /// updates user interface to highlight selected insult currenty being spoken and disable 
+    /// updates user interface to highlight selected insult currently being spoken and disable 
     /// all other insults then calls view model to speak insult at specified index in 
     /// view model's insults list
     /// </summary>
@@ -132,10 +136,10 @@ public partial class MainPage : ContentPage
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	private void OnInsultTapped(object sender, EventArgs e)
+	private void OnInsultTapped(object? sender, EventArgs e)
     {
 
-        if (!((InsulterViewModel)BindingContext).SpeakingNow)
+        if (!((InsulterViewModel)BindingContext).SpeakingNow && sender is not null)
         {
             SpeakInsult((Label)sender);
         }

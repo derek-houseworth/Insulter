@@ -3,23 +3,23 @@ using System.Runtime.CompilerServices;
 
 namespace Insulter.ViewModels;
 
-public class ViewModelBase : INotifyPropertyChanged
+public partial class ViewModelBase : INotifyPropertyChanged
 {
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     
 
     /// <summary>
-    /// Updates property value if new value is different than exisiting and raises Changed event
+    /// Updates property value if new value is different than existing and raises Changed event
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="storage"></param>
     /// <param name="value"></param>
     /// <param name="propertyName"></param>
     /// <returns></returns>
-    protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+    protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
     {
-        if (Object.Equals(storage, value))
+        if (Object.Equals(storage, value) || propertyName is null)
         {
             return false;
         }
@@ -35,16 +35,24 @@ public class ViewModelBase : INotifyPropertyChanged
     /// Generates changed event for specified property
     /// </summary>
     /// <param name="propertyName">Name of changed property</param>
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-
-        PropertyChangedEventHandler handler = PropertyChanged;
-        if (handler is not null)
+		/*
+        PropertyChangedEventHandler? handler = PropertyChanged;
+        if (handler is not null && propertyName is not null)
         {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
+			//PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			handler(this, new PropertyChangedEventArgs(propertyName));
+		}
+        */
+		if (PropertyChanged is not null && propertyName is not null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
 
-    } //OnPropertyChanged
+
+	} //OnPropertyChanged
+
 
 } //ViewModelBase
 
