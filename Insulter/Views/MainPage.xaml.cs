@@ -23,9 +23,7 @@ public partial class MainPage : ContentPage
         UpdateInsultStatus(false);
 
         //timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
-        if (Application.Current is not null)
-        {
-			Application.Current.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
+        Application.Current?.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
 			{
 				if (((InsulterViewModel)BindingContext).Initialized)
 				{
@@ -35,8 +33,6 @@ public partial class MainPage : ContentPage
 				//terminate timer after intro phrase has been spoken
 				return !((InsulterViewModel)BindingContext).Initialized;
 			});
-
-		}
 
 	} //MainPage
 

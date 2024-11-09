@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace Insulter.ViewModels;
@@ -132,7 +133,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public TextToSpeechViewModel()
     {
 
-		InitializeViewModelAsync();
+        InitializeViewModelAsync();
 
     } //TextToSpeechViewModel
 
@@ -141,42 +142,35 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// prepares locales list, restores view model persisted state, updates command enabled status
     /// </summary>
     /// <returns></returns>
-    private Task InitializeViewModelAsync()
+    private async void InitializeViewModelAsync()
     {
-        return Task.Run(async () => 
+		Initialized = false;
+
+		Debug.WriteLine("*** InitializeViewModelAsync: start");
+		Stopwatch sw = new();
+		sw.Start();
+
+        //build and sort voice locales list
+        List<Locale> localesList = [];
+        foreach (Locale locale in await TextToSpeech.GetLocalesAsync())
         {
+            //Debug.WriteLine(locale.Name);
+            localesList.Add(locale);
+        }
+		Debug.WriteLine($"InitializeViewModelAsync: found {localesList.Count} locales");
+		localesList.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
+        LocalesList = localesList;
+        SelectedLocale = LocalesList[0];
 
-			Initialized = false;
+		//view model state can be restored after locales list successfully generated
+		RestoreState();
 
-			Debug.WriteLine("*** InitializeViewModelAsync: start");
-			Stopwatch sw = new();
-			sw.Start();
+		SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return !SpeakingNow; });
 
-			//build and sort voice locales list
-            IEnumerable<Locale> locales = await TextToSpeech.GetLocalesAsync();
-            List<Locale> localesList = [];
-            foreach (Locale locale in locales)
-            {
-                //Debug.WriteLine(locale.Name);
-                localesList.Add(locale);
-            }
-			Debug.WriteLine($"InitializeViewModelAsync: found {localesList.Count} locales");
-			localesList.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
-            LocalesList = localesList;
-            SelectedLocale = LocalesList[0];
+		((Command)SpeakNowAsyncCommand).ChangeCanExecute();
 
-
-			//view model state can be restored after locales list successfully generated
-			RestoreState();
-
-			SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return !SpeakingNow; });
-
-			((Command)SpeakNowAsyncCommand).ChangeCanExecute();
-
-			Initialized = true;
-			Debug.WriteLine("*** InitializeViewModelAsync: completed in {0:N} ms", sw.Elapsed.Milliseconds);
-
-		});
+		Initialized = true;
+		Debug.WriteLine("*** InitializeViewModelAsync: completed in {0:N} ms", sw.Elapsed.Milliseconds);
 
 	} //InitializeViewModelAsync
 
@@ -207,9 +201,11 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	private void RestoreState()
 	{
 
-        if (LocalesList != null)
+        if (LocalesList is not null)
         {
-            SelectedLocale = LocalesList[Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0)];
+            int localeIndex = Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0);
+            if (localeIndex > LocalesList.Count - 1) localeIndex = 0;
+            SelectedLocale = LocalesList[localeIndex];
         }
 
         Volume = Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX/2 + VOLUME_MIN));

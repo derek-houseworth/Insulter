@@ -7,7 +7,7 @@ namespace Insulter;
 /// inherited window class to enable responses to app lifecycle events, e.g. 
 /// call main page view model's save state method on app shutdown or deactivation
 /// </summary>
-public class InsulterWindow : Window
+public partial class InsulterWindow : Window
 {
 
 	private readonly MainPage? _mainPage;
@@ -26,7 +26,9 @@ public class InsulterWindow : Window
 	/// </summary>
 	protected override void OnCreated()
 	{
-	} //OnCreated
+		//view model's initial state restored from view model's async initialization code
+
+    } //OnCreated
 
 
 	/// <summary>

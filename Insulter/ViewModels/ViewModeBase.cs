@@ -37,14 +37,7 @@ public partial class ViewModelBase : INotifyPropertyChanged
     /// <param name="propertyName">Name of changed property</param>
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-		/*
-        PropertyChangedEventHandler? handler = PropertyChanged;
-        if (handler is not null && propertyName is not null)
-        {
-			//PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			handler(this, new PropertyChangedEventArgs(propertyName));
-		}
-        */
+
 		if (PropertyChanged is not null && propertyName is not null)
 		{
 			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
