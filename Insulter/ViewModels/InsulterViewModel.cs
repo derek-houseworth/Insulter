@@ -24,8 +24,8 @@ public partial class InsulterViewModel : TextToSpeechViewModel
     /// </summary>
     public InsulterViewModel()
     {
-        _insultsList = new Insults().InsultsList;
-        _initialized &= InsultsList.Count > 0;
+        InsultsList = new Insults().InsultsList;
+        Initialized &= InsultsList.Count > 0;
         InsultsList.Insert(0, WELCOME_MESSAGE);
 
     } //InsulterViewModel

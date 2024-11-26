@@ -9,15 +9,12 @@ public partial class MainPage : ContentPage
     /// <summary>
     /// initializes user interface and hooks up view model, speaks welcome message
     /// </summary>
-    /// <param name="viewModel"></param>
-    public MainPage(InsulterViewModel viewModel)
+    public MainPage()
 	{
 		InitializeComponent();
 
         //update view model with UI method to be called when speaking complete
-        viewModel.SpeakingComplete += OnInsultSpoken;
-
-        BindingContext = viewModel;
+        ((InsulterViewModel)BindingContext).SpeakingComplete += OnInsultSpoken;
 
         DisplayInsults();
         UpdateInsultStatus(false);

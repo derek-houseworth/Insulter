@@ -13,7 +13,8 @@ public partial class App : Application
 
 	protected override Window CreateWindow(IActivationState? activationState)
 	{
-		return new InsulterWindow(new MainPage(new InsulterViewModel()));
+		//return new InsulterWindow(new MainPage(new InsulterViewModel()));
+		return new InsulterWindow(new MainPage());
 
 		/*
 		Window window = base.CreateWindow(activationState);

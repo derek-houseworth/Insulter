@@ -1,11 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Insulter.ViewModels"
+             x:DataType="viewModels:InsulterViewModel"
              x:Class="Insulter.Views.MainPage"
              Padding="15"
              Title="Shakespearean Insulter"
              BackgroundColor="AntiqueWhite">
-   
+
+    <ContentPage.BindingContext>
+        <viewModels:InsulterViewModel />
+    </ContentPage.BindingContext>
+
     <Grid RowDefinitions="auto,*">
         
         <VerticalStackLayout Grid.Row="0" 
@@ -21,7 +27,7 @@
                        Grid.Row="0"
                        Grid.Column="0"/>
                 <Picker ItemsSource="{Binding Path=LocalesList}"
-                        ItemDisplayBinding ="{Binding Name, StringFormat='{0}'}"
+                        ItemDisplayBinding ="{Binding Path=Name}"
                         SelectedItem="{Binding Path=SelectedLocale, Mode=TwoWay}"
                         TextColor="Black"
                         Margin="10,0,0,0"
