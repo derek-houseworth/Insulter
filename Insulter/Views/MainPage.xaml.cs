@@ -51,7 +51,7 @@ public partial class MainPage : ContentPage
         else
         {
             DisplayInsults();
-        }
+        }        
 
     } //OnInsultSpoken
 
@@ -63,7 +63,7 @@ public partial class MainPage : ContentPage
     /// <param name="insultsEnabled"></param>
     private void UpdateInsultStatus(bool insultsEnabled)
     {
-        foreach (Label labelInsult in stackLayoutInsults.Children)
+        foreach (Label labelInsult in stackLayoutInsults.Children.Cast<Label>())
         {
             labelInsult.IsEnabled = insultsEnabled;
             labelInsult.TextColor = insultsEnabled ? Color.FromRgb(72,72,72) : Color.FromRgb(157,157,157);
@@ -102,16 +102,16 @@ public partial class MainPage : ContentPage
 
 		return insultLabel;
 
-    }
+	} //GetInsultLabel
 
 
-    /// <summary>
-    /// updates user interface to highlight selected insult currently being spoken and disable 
-    /// all other insults then calls view model to speak insult at specified index in 
-    /// view model's insults list
-    /// </summary>
-    /// <param name="label"></param>
-    private void SpeakInsult(Label label)
+	/// <summary>
+	/// updates user interface to highlight selected insult currently being spoken and disable 
+	/// all other insults then calls view model to speak insult at specified index in 
+	/// view model's insults list
+	/// </summary>
+	/// <param name="label"></param>
+	private void SpeakInsult(Label label)
     {
         _labelInsult = label;
         UpdateInsultStatus(false);
@@ -139,4 +139,4 @@ public partial class MainPage : ContentPage
 
 	} //OnInsultTapped
 
-}
+} //MainPage

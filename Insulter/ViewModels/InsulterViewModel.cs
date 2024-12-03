@@ -7,6 +7,16 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
     private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
 
+    /// <summary>
+    /// counter for number of insults spoken
+    /// </summary>
+    private int _insultsSpoken = 0;
+    public int InsultsSpoken
+    {
+        get => _insultsSpoken;
+        private set => SetProperty(ref _insultsSpoken, value); 
+    }
+
 	/// <summary>
 	/// insults list
 	/// </summary>
@@ -43,6 +53,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
         }
         TextToSpeak = InsultsList[insultIndex];
         DeleteInsultAt(insultIndex);
+        InsultsSpoken++;
         SpeakNowAsync();
 
     } //SpeakInsult
