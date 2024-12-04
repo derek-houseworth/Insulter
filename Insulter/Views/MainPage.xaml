@@ -9,8 +9,54 @@
              BackgroundColor="AntiqueWhite">
 
     <ContentPage.BindingContext>
-        <viewModels:InsulterViewModel />
+        <viewModels:InsulterViewModel/>
     </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="insultNotSpeakingStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="BlackAdderITCRegular" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="SlateGray" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="LightGray" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="LightGreen" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+            <Style x:Key="insultSpeakingStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="BlackAdderITCRegular" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal"/>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="OrangeRed" />
+                                    <Setter Property="FontAttributes" Value="Italic" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="auto,*">
         
@@ -20,20 +66,27 @@
             <Grid RowDefinitions="auto,auto,auto"
                   ColumnDefinitions="auto,*">
                 <Label Text="Voice: " 
+                       IsVisible="{Binding Path=Initialized}"
                        TextColor="Black"
                        TranslationY="11"
                        Margin="0,0,10,0"
                        FontAttributes="Bold"
                        Grid.Row="0"
                        Grid.Column="0"/>
+                <!--
+                    compiled binding for Picker's ItemDisplayBinding causes "property not found" warning because Name is not
+                    a bindable property InsulterViewModel but Picker works correctly at runtime because Name is bindable on Locale object
+                -->
                 <Picker ItemsSource="{Binding Path=LocalesList}"
-                        ItemDisplayBinding ="{Binding Path=Name}"
+                        ItemDisplayBinding ="{Binding Path=Name}"       
                         SelectedItem="{Binding Path=SelectedLocale, Mode=TwoWay}"
+                        IsVisible="{Binding Path=Initialized}"
                         TextColor="Black"
                         Margin="10,0,0,0"
                         Grid.Row="0"
                         Grid.Column="1"/>
                 <Label Text="Pitch: " 
+                       IsVisible="{Binding Path=Initialized}"
                        TextColor="Black"
                        TranslationY="11"
                        Margin="0,0,10,0"
@@ -41,6 +94,7 @@
                        Grid.Row="1"
                        Grid.Column="0"/>
                 <Slider Value="{Binding Path=Pitch, Mode=TwoWay}"
+                        IsVisible="{Binding Path=Initialized}"
                         WidthRequest="300"
                         Minimum="0.01"
                         Maximum="2.0"
@@ -48,7 +102,8 @@
                         IsEnabled="{Binding Path=Initialized}"
                         Grid.Row="1"
                         Grid.Column="1"/>
-                <Label Text="Volume: " 
+                <Label Text="Volume: "
+                       IsVisible="{Binding Path=Initialized}"
                        TextColor="Black"
                        TranslationY="11"
                        Margin="0,0,10,0"
@@ -56,6 +111,7 @@
                        Grid.Row="2"
                        Grid.Column="0"/>
                 <Slider Value="{Binding Path=Volume, Mode=TwoWay}"
+                        IsVisible="{Binding Path=Initialized}"
                         WidthRequest="300"
                         Minimum="0.0"
                         Maximum="1.0"

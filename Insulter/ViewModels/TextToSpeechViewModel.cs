@@ -30,8 +30,8 @@ public partial class TextToSpeechViewModel : ViewModelBase
     private IList<Locale> _localesList = [];
     public IList<Locale> LocalesList
     {
-        get { return _localesList; }
-        private set { SetProperty(ref _localesList, value); }
+        get => _localesList;
+        private set => SetProperty(ref _localesList, value); 
 
     } //LocalesList
 
@@ -42,27 +42,26 @@ public partial class TextToSpeechViewModel : ViewModelBase
     private Locale? _selectedLocale = null;
     public Locale? SelectedLocale
     {
-        get { return _selectedLocale; }
+        get =>_selectedLocale; 
         set
         {
-            if (value is not null  && value != _selectedLocale)
+            if (value is not null)
             {
-				_selectedLocale = value;
-                OnPropertyChanged(nameof(SelectedLocale));
+				SetProperty(ref _selectedLocale, value);
             }
         }
 
     } //SelectedLocale
+
     
-    
-    /// <summary>
-    /// true while speaking in progress, false otherwise
-    /// </summary>
-    private bool _speakingNow = false;
+	/// <summary>
+	/// true while speaking in progress, false otherwise
+	/// </summary>
+	private bool _speakingNow = false;
     public bool SpeakingNow
     {
-        get { return _speakingNow; }
-        private set { SetProperty(ref _speakingNow, value); }
+        get => _speakingNow;
+        private set => SetProperty(ref _speakingNow, value);
 
     } //SpeakingNow
 
@@ -75,12 +74,8 @@ public partial class TextToSpeechViewModel : ViewModelBase
     private float _volume = 0.5f;
 	public float Volume
     {
-        get { return _volume; }
-        set
-        {
-            _volume = Math.Clamp(value, VOLUME_MIN, VOLUME_MAX);
-            OnPropertyChanged(nameof(Volume));
-        }
+        get => _volume;
+        set => SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
 
     } //Volume
 
@@ -93,12 +88,8 @@ public partial class TextToSpeechViewModel : ViewModelBase
     private float _pitch = 1.0f;
     public float Pitch
     {
-        get { return _pitch; }
-        set
-        {
-            _pitch = Math.Clamp(value, PITCH_MIN, PITCH_MAX);
-			OnPropertyChanged(nameof(Pitch));
-		}
+        get => _pitch;
+        set => SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));       
 
     } //Pitch
 
@@ -109,8 +100,8 @@ public partial class TextToSpeechViewModel : ViewModelBase
     private string _textToSpeak = "";
     public string TextToSpeak
     {
-        get { return _textToSpeak; }
-        set { SetProperty(ref _textToSpeak, value); }
+        get => _textToSpeak;
+        set => SetProperty(ref _textToSpeak, value);
     
     } //TextToSpeak
 
@@ -121,8 +112,8 @@ public partial class TextToSpeechViewModel : ViewModelBase
     internal bool _initialized = false;
     public bool Initialized
     {
-        get { return _initialized; }
-        set { SetProperty(ref _initialized, value); }
+        get => _initialized;
+        set => SetProperty(ref _initialized, value); 
     }
 
 
@@ -146,8 +137,6 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		Initialized = false;
 
 		Debug.WriteLine("*** InitializeViewModelAsync: start");
-		Stopwatch sw = new();
-		sw.Start();
 
         //build and sort voice locales list
         List<Locale> localesList = [];
@@ -169,7 +158,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		((Command)SpeakNowAsyncCommand).ChangeCanExecute();
 
 		Initialized = true;
-		Debug.WriteLine("*** InitializeViewModelAsync: completed in {0:N} ms", sw.Elapsed.Milliseconds);
+		Debug.WriteLine("*** InitializeViewModelAsync: completed");
 
 	} //InitializeViewModelAsync
 
