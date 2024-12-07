@@ -96,7 +96,7 @@ public partial class MainPage : ContentPage
 		Label insultLabel = new() 
         {
             Text = insultText,
-            FontSize = DeviceInfo.Idiom == DeviceIdiom.Phone ? 42 : 62, 
+            FontSize = DeviceInfo.Idiom == DeviceIdiom.Phone ? 42 : 54, 
             Style = (Style)this.Resources["insultNotSpeakingStyle"],
 		};
 		insultLabel.GestureRecognizers.Add(tgr);
@@ -115,9 +115,14 @@ public partial class MainPage : ContentPage
     {
 		if (_selectedInsultLabel is not null)
 		{
+			//disable all insult labels
 			UpdateInsultStatus(false);
 			//VisualStateManager.GoToState(_selectedInsultLabel, "Speaking");
+
+			//change style of selected insult label to indicate it is being spoken
 			_selectedInsultLabel.Style = (Style)this.Resources["insultSpeakingStyle"];
+
+			//speak text contents of selected insult label
 			int indexSelectedInsult = stackLayoutInsults.Children.IndexOf(_selectedInsultLabel);
 			((InsulterViewModel)BindingContext).SpeakInsult(indexSelectedInsult);
 		}

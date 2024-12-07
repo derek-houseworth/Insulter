@@ -3,27 +3,17 @@ using System.Text;
 
 namespace Insulter.Services;
 
-internal class InsultBuilderService
+/// <summary>
+/// constructor initializes properties 
+/// </summary>
+/// <param name="adjectivesFile">resourceID of text file containing adjectives</param>
+/// <param name="adverbsFile">resourceID of text file containing adverbs</param>
+/// <param name="nounsFile">resourceID of text file containing nouns</param>
+internal class InsultBuilderService(string adjectivesFile, string adverbsFile, string nounsFile)
 {
 
     private const string INSULT_PREFIX = "Thou art a";
-    private readonly string _adjectivesFile, _adverbsFile, _nounsFile;
-
-
-	/// <summary>
-	/// constructor initializes properties 
-	/// </summary>
-	/// <param name="adjectivesFile">resourceID of text file containing adjectives</param>
-	/// <param name="adverbsFile">resourceID of text file containing adverbs</param>
-	/// <param name="nounsFile">resourceID of text file containing nouns</param>
-	public InsultBuilderService(string adjectivesFile, string adverbsFile, string nounsFile) 
-    {
-
-        _adjectivesFile = adjectivesFile;
-        _adverbsFile = adverbsFile;
-        _nounsFile = nounsFile;
-
-	} //InsultBuilderService
+    private readonly string _adjectivesFile = adjectivesFile, _adverbsFile = adverbsFile, _nounsFile = nounsFile;
 
 
 	/// <summary>
@@ -41,7 +31,7 @@ internal class InsultBuilderService
 
 
 	/// <summary>
-	/// returns unique list of insults comprised of randomly selected words 
+	/// generatoes list of insults comprised of randomly selected words 
 	/// from adjectives, adverbs and nouns lists
 	/// </summary>
 	/// <returns>List<string> containing insults</string></returns>
@@ -87,25 +77,25 @@ internal class InsultBuilderService
     /// <summary>
     /// loads word list from resource file specified by resourceID
     /// </summary>
-    /// <param name="resourceID">name of resource file containing words in text format, 1 word per line</param>
+    /// <param name="resourceId">name of resource file containing words in text format, 1 word per line</param>
     /// <returns>List<string> containing words read from resource file</string></returns>
-    private static List<string> ReadWordListFromResource(string resourceID)
+    private static List<string> ReadWordListFromResource(string resourceId)
     {
-		ArgumentNullException.ThrowIfNull(resourceID);
+		ArgumentNullException.ThrowIfNull(resourceId);
 
 		List<string> insultWordsList = [];
-		using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceID);
+		using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceId);
 		if (stream is not null)
 		{
             using StreamReader reader = new(stream);
             if (reader is not null)
 			{
-				do
+				string? line = reader.ReadLine();
+				while (line is not null) 
 				{
-					string? line = reader.ReadLine();
-					if (line is null) break;
 					insultWordsList.Add(line);
-				} while (true);
+					line = reader.ReadLine();
+				}
 			}
 		}
 		return insultWordsList;

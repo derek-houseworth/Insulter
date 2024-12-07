@@ -6,7 +6,7 @@ namespace Insulter.ViewModels;
 public partial class TextToSpeechViewModel : ViewModelBase
 {
 
-    private const string APP_SETTINGS_LOCALE_INDEX_KEY = nameof(SelectedLocale);
+    private const string APP_SETTINGS_LOCALE_INDEX_KEY = nameof(SelectedVoice);
     private const string APP_SETTINGS_VOLUME_KEY = nameof(Volume);
     private const string APP_SETTINGS_PITCH_KEY = nameof(Pitch);
 
@@ -24,36 +24,31 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public ICommand? SpeakNowAsyncCommand { private set; get; } = null;
 
 
-    /// <summary>
-    /// List of locale objects representing TTS voices currently installed on device
-    /// </summary>
-    private IList<Locale> _localesList = [];
-    public IList<Locale> LocalesList
-    {
-        get => _localesList;
-        private set => SetProperty(ref _localesList, value); 
+	private List<Locale> _locales = [];
 
-    } //LocalesList
-
-        
-    /// <summary>
-    /// Locale object currently selected from locales list to be used when speaking
-    /// </summary>
-    private Locale? _selectedLocale = null;
-    public Locale? SelectedLocale
+	/// <summary>
+	/// List of strings representing friendly name of all TTS voices currently installed on device
+	/// </summary>
+	private IList<string> _voices = [];
+    public IList<string> Voices
     {
-        get =>_selectedLocale; 
-        set
-        {
-            if (value is not null)
-            {
-				SetProperty(ref _selectedLocale, value);
-            }
-        }
+        get => _voices;
+        private set => SetProperty(ref _voices, value);
+
+	} //Voices
+
+
+	/// <summary>
+	/// String representing currently selected voice from TTS voices list
+	/// </summary>
+	private string _selectedVoice= string.Empty;
+    public string SelectedVoice
+    {
+        get =>_selectedVoice; 
+        set => SetProperty(ref _selectedVoice, value);
 
     } //SelectedLocale
 
-    
 	/// <summary>
 	/// true while speaking in progress, false otherwise
 	/// </summary>
@@ -139,16 +134,23 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		Debug.WriteLine("*** InitializeViewModelAsync: start");
 
         //build and sort voice locales list
-        List<Locale> localesList = [];
         foreach (Locale locale in await TextToSpeech.GetLocalesAsync())
         {
             //Debug.WriteLine(locale.Name);
-            localesList.Add(locale);
+            _locales.Add(locale);
         }
-		Debug.WriteLine($"InitializeViewModelAsync: found {localesList.Count} locales");
-		localesList.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
-        LocalesList = localesList;
-        SelectedLocale = LocalesList[0];
+		Debug.WriteLine($"InitializeViewModelAsync: found {_locales.Count} locales");
+		_locales.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
+        List<string> voiceListItems = [];
+        foreach (Locale locale in _locales)
+        {
+            //locale name string value on Android already contains language and country 
+            string item = DeviceInfo.Current.Platform == DevicePlatform.Android ? locale.Name :
+                $"{locale.Name} ({locale.Country}{locale.Language})";
+			voiceListItems.Add(item);
+		}
+        Voices = voiceListItems;
+		SelectedVoice = Voices[0];
 
 		//view model state can be restored after locales list successfully generated
 		RestoreState();
@@ -169,9 +171,9 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public void SaveState()
 	{
 
-        if (LocalesList is not null && SelectedLocale is not null)
+        if (Voices is not null && SelectedVoice is not null)
         {
-            Preferences.Set(APP_SETTINGS_LOCALE_INDEX_KEY, LocalesList.IndexOf(SelectedLocale));
+            Preferences.Set(APP_SETTINGS_LOCALE_INDEX_KEY, Voices.IndexOf(SelectedVoice));
         }
 
 		Preferences.Set(APP_SETTINGS_VOLUME_KEY, Volume);
@@ -189,11 +191,11 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	private void RestoreState()
 	{
 
-        if (LocalesList is not null)
+        if (Voices is not null)
         {
-            int localeIndex = Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0);
-            if (localeIndex > LocalesList.Count - 1) localeIndex = 0;
-            SelectedLocale = LocalesList[localeIndex];
+            int selectedVoiceIndex = Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0);
+            if (selectedVoiceIndex > Voices.Count - 1) selectedVoiceIndex = 0;
+            SelectedVoice = Voices[selectedVoiceIndex];
         }
 
         Volume = Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX/2 + VOLUME_MIN));
@@ -209,18 +211,18 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	public async void SpeakNowAsync()
     {
 
-        if (!Initialized || LocalesList == null || SpeakNowAsyncCommand == null || LocalesList.Count == 0) 
+        if (!Initialized || Voices  == null || SpeakNowAsyncCommand == null || Voices.Count == 0) 
         { 
             return; 
         }
 
-        SelectedLocale ??= LocalesList[0];
+        SelectedVoice ??= Voices[0];
         var speechOptions = new SpeechOptions()
         {
             Volume = Volume,
             Pitch = Pitch,
             //Locale = _locales.ElementAt<Locale>(_random.Next(0, _locales.Count())) //.FirstOrDefault();
-            Locale = SelectedLocale
+            Locale = _locales[Voices.IndexOf(SelectedVoice)]
         };
 
         Debug.WriteLine("SpeakNowAsync(): Language={0}\tName={1}\tText={2}\tVolume={3:N1}\tPitch={4:N1}",

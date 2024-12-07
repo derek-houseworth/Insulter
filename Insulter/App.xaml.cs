@@ -1,6 +1,5 @@
 ﻿namespace Insulter;
 using Insulter.Views;
-using Insulter.ViewModels;
 
 public partial class App : Application
 {
@@ -13,7 +12,6 @@ public partial class App : Application
 
 	protected override Window CreateWindow(IActivationState? activationState)
 	{
-		//return new InsulterWindow(new MainPage(new InsulterViewModel()));
 		return new InsulterWindow(new MainPage());
 
 		/*

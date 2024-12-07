@@ -54,79 +54,63 @@
                     </VisualStateGroupList>
                 </Setter>
             </Style>
-
+            <Style x:Key="controlLabelStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="HorizontalOptions" Value="End" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="IsVisible" Value="{Binding Initialized}" />
+            </Style>
+            <Style x:Key="sliderStyle" TargetType="Slider">
+                <Setter Property="IsVisible" Value="{Binding Initialized}" />
+                <Setter Property="TranslationY" Value="2" />
+                <Setter Property="TranslationX" Value="-4" />
+                <Setter Property="WidthRequest" Value="240"/>
+                <Setter Property="HorizontalOptions" Value="Start"/>
+            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="auto,*">
-        
-        <VerticalStackLayout Grid.Row="0" 
-                               HorizontalOptions="CenterAndExpand"
-                               Padding="0,0,0,15">
-            <Grid RowDefinitions="auto,auto,auto"
-                  ColumnDefinitions="auto,*">
-                <Label Text="Voice: " 
-                       IsVisible="{Binding Path=Initialized}"
-                       TextColor="Black"
-                       TranslationY="11"
-                       Margin="0,0,10,0"
-                       FontAttributes="Bold"
-                       Grid.Row="0"
-                       Grid.Column="0"/>
-                <!--
-                    compiled binding for Picker's ItemDisplayBinding causes "property not found" warning because Name is not
-                    a bindable property InsulterViewModel but Picker works correctly at runtime because Name is bindable on Locale object
-                -->
-                <Picker ItemsSource="{Binding Path=LocalesList}"
-                        ItemDisplayBinding ="{Binding Path=Name}"       
-                        SelectedItem="{Binding Path=SelectedLocale, Mode=TwoWay}"
-                        IsVisible="{Binding Path=Initialized}"
-                        TextColor="Black"
-                        Margin="10,0,0,0"
-                        Grid.Row="0"
-                        Grid.Column="1"/>
-                <Label Text="Pitch: " 
-                       IsVisible="{Binding Path=Initialized}"
-                       TextColor="Black"
-                       TranslationY="11"
-                       Margin="0,0,10,0"
-                       FontAttributes="Bold"                        
-                       Grid.Row="1"
-                       Grid.Column="0"/>
-                <Slider Value="{Binding Path=Pitch, Mode=TwoWay}"
-                        IsVisible="{Binding Path=Initialized}"
-                        WidthRequest="300"
-                        Minimum="0.01"
-                        Maximum="2.0"
-                        Margin="0,15,0,0"
-                        IsEnabled="{Binding Path=Initialized}"
-                        Grid.Row="1"
-                        Grid.Column="1"/>
-                <Label Text="Volume: "
-                       IsVisible="{Binding Path=Initialized}"
-                       TextColor="Black"
-                       TranslationY="11"
-                       Margin="0,0,10,0"
-                       FontAttributes="Bold"
-                       Grid.Row="2"
-                       Grid.Column="0"/>
-                <Slider Value="{Binding Path=Volume, Mode=TwoWay}"
-                        IsVisible="{Binding Path=Initialized}"
-                        WidthRequest="300"
-                        Minimum="0.0"
-                        Maximum="1.0"
-                        Margin="0,15,0,0"
-                        IsEnabled="{Binding Path=Initialized}"
-                        Grid.Row="2"
-                        Grid.Column="1"/>
+    <Grid RowDefinitions="auto,*"
+          RowSpacing="15">
+        <Grid RowDefinitions="auto,auto,auto"
+              ColumnDefinitions=".25*,.75*"
+              ColumnSpacing="15"
+              RowSpacing="10"
+              WidthRequest="400"
+              Padding="20">
+            <Label Text="Voice" 
+                   Style="{StaticResource controlLabelStyle}"
+                   TranslationY="13"/>
+            <Picker ItemsSource="{Binding Voices}"
+                    SelectedItem="{Binding SelectedVoice}"
+                    IsVisible="{Binding Initialized}"
+                    TextColor="Black"
+                    Grid.Column="1"
+                    Margin="10,0,0,0"
+                    HorizontalOptions="Start"/>
+            <Label Text="Pitch" 
+                    Style="{StaticResource controlLabelStyle}"                    
+                    Grid.Row="1"/>
+            <Slider Value="{Binding Pitch}"
+                    Minimum="0.01"
+                    Maximum="2.0"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Style="{StaticResource sliderStyle}"/>
+            <Label Text="Volume"
+                    Style="{StaticResource controlLabelStyle}"
+                    Grid.Row="2"/>
+            <Slider Value="{Binding Volume}"
+                    Minimum="0.0"
+                    Maximum="1.0"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Style="{StaticResource sliderStyle}"/>
         </Grid>
-        </VerticalStackLayout>
-            <ScrollView Grid.Row="1">
-                <VerticalStackLayout x:Name="stackLayoutInsults"
-                                     Padding="10"
-                                     HorizontalOptions="CenterAndExpand">
-                </VerticalStackLayout>
-            </ScrollView>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout x:Name="stackLayoutInsults">
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 
 </ContentPage>

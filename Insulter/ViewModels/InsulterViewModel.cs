@@ -14,8 +14,9 @@ public partial class InsulterViewModel : TextToSpeechViewModel
     public int InsultsSpoken
     {
         get => _insultsSpoken;
-        private set => SetProperty(ref _insultsSpoken, value); 
-    }
+        private set => SetProperty(ref _insultsSpoken, value);
+
+	} //InsultsSpoken
 
 	/// <summary>
 	/// insults list
@@ -26,13 +27,13 @@ public partial class InsulterViewModel : TextToSpeechViewModel
         get => _insultsList; 
         private set => SetProperty(ref _insultsList, value);
 
-    } //insults list
+	} //InsultsList
 
 
-    /// <summary>
-    /// Creates and initializes new InsulterViewModel object
-    /// </summary>
-    public InsulterViewModel()
+	/// <summary>
+	/// Creates and initializes new InsulterViewModel object
+	/// </summary>
+	public InsulterViewModel()
     {
         InsultsList = new Insults().InsultsList;
         Initialized &= InsultsList.Count > 0;
@@ -47,7 +48,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
     /// <param name="insultIndex">Integer index of insult in InsultsList to speak</param>
     public void SpeakInsult(int insultIndex)
     {
-        if (insultIndex < 0 || insultIndex > InsultsList.Count - 1)
+        if (InsultsList.Count == 0 || insultIndex < 0 || insultIndex > InsultsList.Count - 1)
         {
             throw new ArgumentException($"no insult at specified index {insultIndex}, index value is invalid");
         }
@@ -65,14 +66,14 @@ public partial class InsulterViewModel : TextToSpeechViewModel
     /// <param name="insultIndex">Integer list index of insult to be removed</param>
     private void DeleteInsultAt(int insultIndex)
     {
-        if (insultIndex < 0 || insultIndex > InsultsList.Count - 1)
+        if (InsultsList.Count == 0 || insultIndex < 0 || insultIndex > InsultsList.Count - 1)
         {
             throw new ArgumentException($"no insult at specified index {insultIndex}, index value is invalid");
         }
 
         InsultsList.RemoveAt(insultIndex);
 
-        //reinitialize insults list if last insult was just removed & list is empty  
+        //reinitialize insults list if last insult was just removed
         if (0 == InsultsList.Count)
         {
 			_insultsList = new Insults().InsultsList;
