@@ -50,21 +50,21 @@ public partial class TextToSpeechViewModel : ViewModelBase
     } //SelectedLocale
 
 	/// <summary>
-	/// true while speaking in progress, false otherwise
+	/// true if speaking is possible, i.e. initialization successfuy and not currently speaking
 	/// </summary>
-	private bool _speakingNow = false;
-    public bool SpeakingNow
+	private bool _canSpeak = false;
+    public bool CanSpeak
     {
-        get => _speakingNow;
-        private set => SetProperty(ref _speakingNow, value);
+        get => _canSpeak;
+        private set => SetProperty(ref _canSpeak, value);
 
-    } //SpeakingNow
+	} //CanSpeak
 
 
-    /// <summary>
-    /// Speaker volume for voice
-    /// </summary>
-    const float VOLUME_MIN = 0.0f;
+	/// <summary>
+	/// Speaker volume for voice
+	/// </summary>
+	const float VOLUME_MIN = 0.0f;
     const float VOLUME_MAX = 1.0f;
     private float _volume = 0.5f;
 	public float Volume
@@ -155,11 +155,12 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		//view model state can be restored after locales list successfully generated
 		RestoreState();
 
-		SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return !SpeakingNow; });
+		SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return CanSpeak; });
 
 		((Command)SpeakNowAsyncCommand).ChangeCanExecute();
 
 		Initialized = true;
+        CanSpeak = true;
 		Debug.WriteLine("*** InitializeViewModelAsync: completed");
 
 	} //InitializeViewModelAsync
@@ -232,11 +233,11 @@ public partial class TextToSpeechViewModel : ViewModelBase
             speechOptions.Volume,
             speechOptions.Pitch);
 
-        SpeakingNow = true;
+        CanSpeak = false;
         ((Command)SpeakNowAsyncCommand).ChangeCanExecute();
         await TextToSpeech.SpeakAsync(_textToSpeak, speechOptions).ContinueWith((t) =>
         {
-            SpeakingNow = false;
+            CanSpeak = true;
             ((Command)SpeakNowAsyncCommand).ChangeCanExecute();
             SpeakingComplete?.Invoke();               
 

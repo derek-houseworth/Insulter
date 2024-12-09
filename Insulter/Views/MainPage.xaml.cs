@@ -13,24 +13,23 @@ public partial class MainPage : ContentPage
 	{
 		InitializeComponent();
 
-        //update view model with UI method to be called when speaking complete
+        //update view model with MainPage method to be called after selected insult has been spoken
         ((InsulterViewModel)BindingContext).SpeakingComplete += OnInsultSpoken;
 
         DisplayInsults();
-        UpdateInsultStatus(false);
 
         //timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
         Application.Current?.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
+		{
+			if (((InsulterViewModel)BindingContext).Initialized)
 			{
-				if (((InsulterViewModel)BindingContext).Initialized)
-				{
-					_selectedInsultLabel = (Label)stackLayoutInsults.Children[0];
-					SpeakInsult();
-				}
+				_selectedInsultLabel = (Label)stackLayoutInsults.Children[0];
+				OnInsultTapped(_selectedInsultLabel, new EventArgs());
+			}
 
-				//terminate timer after intro phrase has been spoken
-				return !((InsulterViewModel)BindingContext).Initialized;
-			});
+			//terminate timer after speaking of intro phrase has started
+			return !((InsulterViewModel)BindingContext).Initialized;
+		});
 
 	} //MainPage
 
@@ -47,9 +46,6 @@ public partial class MainPage : ContentPage
         stackLayoutInsults.Children.RemoveAt(indexSelectedInsult);
 		_selectedInsultLabel = null;
 
-		//enable remaining insults to make them clickable
-		UpdateInsultStatus(true);
-
 		//load insults if all insults have been spoken and stackLayout is empty
 		if (stackLayoutInsults.Count == 0)
 		{
@@ -59,21 +55,6 @@ public partial class MainPage : ContentPage
     } //OnInsultSpoken
 
 
-    /// <summary>
-    /// toggles  enabled status of insults labels at beginning and end of speaking, i.e. 
-    /// disable all insults while speaking and enable remaining after speaking complete
-    /// /// </summary>
-    /// <param name="insultsEnabled"></param>
-    private void UpdateInsultStatus(bool insultsEnabled)
-    {
-        foreach (Label labelInsult in stackLayoutInsults.Children.Cast<Label>())
-        {
-			labelInsult.IsEnabled = insultsEnabled;
-        }
-
-	} //UpdateInsultStatus
-
-
 	/// <summary>
 	/// creates label for each insult and adds to main stack layout
 	/// </summary>
@@ -81,43 +62,36 @@ public partial class MainPage : ContentPage
     {
         stackLayoutInsults.Children.Clear();
 
-        foreach (string insult in ((InsulterViewModel)BindingContext).InsultsList)
+		foreach (string insultText in ((InsulterViewModel)BindingContext).InsultsList)
         {
-            stackLayoutInsults.Children.Add(GetInsultLabel(insult));
+			TapGestureRecognizer tgr = new();
+			tgr.Tapped += OnInsultTapped;
+			Label insultLabel = new()
+			{
+				FontSize = DeviceInfo.Idiom == DeviceIdiom.Phone ? 42 : 54,
+				Style = (Style)this.Resources["insultNotSpeakingStyle"],
+				Text = insultText
+			};
+			insultLabel.GestureRecognizers.Add(tgr);
+			insultLabel.SetBinding(Label.IsEnabledProperty, "CanSpeak");
+			stackLayoutInsults.Children.Add(insultLabel);
         }
 
 	} //DisplayInsults
 
 
-	private Label GetInsultLabel(string insultText)
-    {
-		TapGestureRecognizer tgr = new();
-		tgr.Tapped += OnInsultTapped;
-		Label insultLabel = new() 
-        {
-            Text = insultText,
-            FontSize = DeviceInfo.Idiom == DeviceIdiom.Phone ? 42 : 54, 
-            Style = (Style)this.Resources["insultNotSpeakingStyle"],
-		};
-		insultLabel.GestureRecognizers.Add(tgr);
-
-		return insultLabel;
-
-	} //GetInsultLabel
-
-
+	
 	/// <summary>
-	/// updates user interface to highlight selected insult currently being spoken and disable 
-	/// all other insults then calls view model to speak insult at specified index in 
-	/// view model's insults list
+	/// common handler of Tapped event for all insult labels
 	/// </summary>
-	private void SpeakInsult()
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void OnInsultTapped(object? sender, EventArgs e)
     {
-		if (_selectedInsultLabel is not null)
-		{
-			//disable all insult labels
-			UpdateInsultStatus(false);
-			//VisualStateManager.GoToState(_selectedInsultLabel, "Speaking");
+
+        if (((InsulterViewModel)BindingContext).CanSpeak && sender is not null)
+        {
+			_selectedInsultLabel = (Label)sender;
 
 			//change style of selected insult label to indicate it is being spoken
 			_selectedInsultLabel.Style = (Style)this.Resources["insultSpeakingStyle"];
@@ -127,23 +101,7 @@ public partial class MainPage : ContentPage
 			((InsulterViewModel)BindingContext).SpeakInsult(indexSelectedInsult);
 		}
 
-	} //SpeakInsult
-
-
-	/// <summary>
-	/// common handler of Tapped event for all insult labels
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	private void OnInsultTapped(object? sender, EventArgs e)
-    {
-
-        if (!((InsulterViewModel)BindingContext).SpeakingNow && sender is not null)
-        {
-			_selectedInsultLabel = (Label)sender;
-			SpeakInsult();
-        }
-
 	} //OnInsultTapped
+	
 
 } //MainPage

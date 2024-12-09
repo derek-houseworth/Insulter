@@ -63,8 +63,8 @@
             <Style x:Key="sliderStyle" TargetType="Slider">
                 <Setter Property="IsVisible" Value="{Binding Initialized}" />
                 <Setter Property="TranslationY" Value="2" />
-                <Setter Property="TranslationX" Value="-4" />
-                <Setter Property="WidthRequest" Value="240"/>
+                <Setter Property="TranslationX" Value="{OnIdiom 10, Phone=-4}" />
+                <Setter Property="WidthRequest" Value="{OnIdiom 600, Phone=240}"/>
                 <Setter Property="HorizontalOptions" Value="Start"/>
             </Style>
         </ResourceDictionary>
@@ -73,11 +73,11 @@
     <Grid RowDefinitions="auto,*"
           RowSpacing="15">
         <Grid RowDefinitions="auto,auto,auto"
-              ColumnDefinitions=".25*,.75*"
+              ColumnDefinitions="0.2*,0.8*"
               ColumnSpacing="15"
               RowSpacing="10"
-              WidthRequest="400"
-              Padding="20">
+              Padding="30"
+              WidthRequest="{OnIdiom 800, Phone=400}">
             <Label Text="Voice" 
                    Style="{StaticResource controlLabelStyle}"
                    TranslationY="13"/>
@@ -87,7 +87,8 @@
                     TextColor="Black"
                     Grid.Column="1"
                     Margin="10,0,0,0"
-                    HorizontalOptions="Start"/>
+                    HorizontalOptions="Start"
+                    WidthRequest="{OnIdiom 600, Phone=220}"/>
             <Label Text="Pitch" 
                     Style="{StaticResource controlLabelStyle}"                    
                     Grid.Row="1"/>
@@ -108,8 +109,9 @@
                     Style="{StaticResource sliderStyle}"/>
         </Grid>
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout x:Name="stackLayoutInsults">
-            </VerticalStackLayout>
+            <VerticalStackLayout x:Name="stackLayoutInsults"
+                                 HorizontalOptions="Center"
+                                 WidthRequest="{OnIdiom 800, Phone=400}"/>
         </ScrollView>
     </Grid>
 
