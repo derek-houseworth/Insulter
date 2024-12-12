@@ -1,19 +1,18 @@
-﻿using System.Reflection;
+﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Text;
 
 namespace Insulter.Services;
 
-/// <summary>
-/// constructor initializes properties 
-/// </summary>
-/// <param name="adjectivesFile">resourceID of text file containing adjectives</param>
-/// <param name="adverbsFile">resourceID of text file containing adverbs</param>
-/// <param name="nounsFile">resourceID of text file containing nouns</param>
-internal class InsultBuilderService(string adjectivesFile, string adverbsFile, string nounsFile)
+public class InsultBuilder
 {
 
-    private const string INSULT_PREFIX = "Thou art a";
-    private readonly string _adjectivesFile = adjectivesFile, _adverbsFile = adverbsFile, _nounsFile = nounsFile;
+	private const string ADJECTIVES_FILE_NAME = "insultAdjectives.txt";
+	private const string ADVERBS_FILE_NAME = "insultAdverbs.txt";
+	private const string NOUNS_FILE_NAME = "insultNouns.txt";
+
+	private const string DATA_FILE_PATH = "Insulter.Data.";
+	private const string INSULT_PREFIX = "Thou art a";
 
 
 	/// <summary>
@@ -35,14 +34,15 @@ internal class InsultBuilderService(string adjectivesFile, string adverbsFile, s
 	/// from adjectives, adverbs and nouns lists
 	/// </summary>
 	/// <returns>List<string> containing insults</string></returns>
-	public List<string>GetInsultList()
+	public static ObservableCollection<string>GetInsults(bool singleInsult = false)
     {
         Random random = new();
 
-        List<string> adjectives = ReadWordListFromResource(_adjectivesFile),
-            adverbs = ReadWordListFromResource(_adverbsFile),
-            nouns = ReadWordListFromResource(_nounsFile);
-        var insultsList = new List<string>();
+        List<string> adjectives = ReadWordListFromResource(DATA_FILE_PATH + ADJECTIVES_FILE_NAME),
+            adverbs = ReadWordListFromResource(DATA_FILE_PATH + ADVERBS_FILE_NAME),
+            nouns = ReadWordListFromResource(DATA_FILE_PATH + NOUNS_FILE_NAME);
+
+		ObservableCollection<string> insults = [];
 
         while (adjectives.Count > 0)
         {
@@ -64,22 +64,28 @@ internal class InsultBuilderService(string adjectivesFile, string adverbsFile, s
             insult.Append($"{nouns[wordIndex]}!");
             nouns.RemoveAt(wordIndex);
 
-            insultsList.Add(insult.ToString());
+            insults.Add(insult.ToString());
+
+			if (singleInsult) break;
         }
 
         //System.Diagnostics.Debug.WriteLine($"generated {insultsList.Count} insults");
 
-        return insultsList;
+        return insults;
 
-    } //LoadInsults
+	} //GetInsults
 
+	public static string GetInsult()
+	{
+		return GetInsults(true)[0];
+	}
 
-    /// <summary>
-    /// loads word list from resource file specified by resourceID
-    /// </summary>
-    /// <param name="resourceId">name of resource file containing words in text format, 1 word per line</param>
-    /// <returns>List<string> containing words read from resource file</string></returns>
-    private static List<string> ReadWordListFromResource(string resourceId)
+	/// <summary>
+	/// loads word list from resource file specified by resourceID
+	/// </summary>
+	/// <param name="resourceId">name of resource file containing words in text format, 1 word per line</param>
+	/// <returns>List<string> containing words read from resource file</string></returns>
+	private static List<string> ReadWordListFromResource(string resourceId)
     {
 		ArgumentNullException.ThrowIfNull(resourceId);
 

@@ -4,7 +4,6 @@
              xmlns:viewModels="clr-namespace:Insulter.ViewModels"
              x:DataType="viewModels:InsulterViewModel"
              x:Class="Insulter.Views.MainPage"
-             Padding="15"
              Title="Shakespearean Insulter"
              BackgroundColor="AntiqueWhite">
 
@@ -14,40 +13,46 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Style x:Key="insultNotSpeakingStyle" TargetType="Label">
-                <Setter Property="FontFamily" Value="BlackAdderITCRegular" />
+            <Style x:Key="gridItemStyle" TargetType="Grid">
+                <Setter Property="Padding" Value="0,5" />
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
-                            <VisualState x:Name="Normal">
+                            <VisualState x:Name="Selected">
                                 <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="SlateGray" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Disabled">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="LightGray" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="PointerOver">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="LightGreen" />
+                                    <Setter Property="BackgroundColor" Value="OldLace" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
                     </VisualStateGroupList>
                 </Setter>
             </Style>
-            <Style x:Key="insultSpeakingStyle" TargetType="Label">
+            <Style x:Key="insultStyle" TargetType="Label">
+                <Setter Property="Padding" Value="18,0" />
                 <Setter Property="FontFamily" Value="BlackAdderITCRegular" />
+                <Setter Property="FontSize" Value="{OnIdiom 54, Phone=32}"/>
+                <Setter Property="BackgroundColor" Value="Transparent" />
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
-                            <VisualState x:Name="Normal"/>
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="Black" />
+                                </VisualState.Setters>
+                            </VisualState>
                             <VisualState x:Name="Disabled">
                                 <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="OrangeRed" />
-                                    <Setter Property="FontAttributes" Value="Italic" />
+                                    <Setter Property="TextColor" Value="Black" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="YellowGreen" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="YellowGreen" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -70,14 +75,13 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="auto,*"
-          RowSpacing="15">
+    <Grid RowDefinitions="auto,*">
         <Grid RowDefinitions="auto,auto,auto"
               ColumnDefinitions="0.2*,0.8*"
               ColumnSpacing="15"
               RowSpacing="10"
               Padding="30"
-              WidthRequest="{OnIdiom 800, Phone=400}">
+              WidthRequest="{OnIdiom 800, Phone=340}">
             <Label Text="Voice" 
                    Style="{StaticResource controlLabelStyle}"
                    TranslationY="13"/>
@@ -108,11 +112,29 @@
                     Grid.Column="1"
                     Style="{StaticResource sliderStyle}"/>
         </Grid>
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout x:Name="stackLayoutInsults"
-                                 HorizontalOptions="Center"
-                                 WidthRequest="{OnIdiom 800, Phone=400}"/>
-        </ScrollView>
+        <CollectionView ItemsSource="{Binding InsultsList}"
+                Grid.Row="1"
+                HorizontalOptions="Center"
+                WidthRequest="{OnIdiom 800, Phone=340}"
+                SelectionMode="Single"
+                SelectedItem="{Binding SelectedInsult, Mode=TwoWay}"
+                SelectionChangedCommand="{Binding SpeakNow}"
+                SelectionChangedCommandParameter="{Binding SelectedInsult}"
+                IsVisible="{Binding Initialized}"
+                IsEnabled="{Binding CanSpeak}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="{x:Type x:String}">
+                    <Grid Style="{StaticResource gridItemStyle}">
+                        <Border Stroke="#C49B33"
+                            StrokeThickness="3">
+                            <Label Text="{Binding .}"
+                               Style="{StaticResource insultStyle}">
+                            </Label>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </Grid>
 
 </ContentPage>

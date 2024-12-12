@@ -1,4 +1,6 @@
-﻿using Insulter.Models;
+﻿using Insulter.Services;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace Insulter.ViewModels;
 
@@ -21,66 +23,68 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 	/// <summary>
 	/// insults list
 	/// </summary>
-	private List<string> _insultsList = [];
-    public List<string> InsultsList
+	private ObservableCollection<string> _insultsList = [];
+    public ObservableCollection<string> InsultsList
     {
         get => _insultsList; 
         private set => SetProperty(ref _insultsList, value);
 
 	} //InsultsList
 
+	private string _selectedInsult = string.Empty;
+	public string SelectedInsult
+	{
+		get => _selectedInsult;
+		set => SetProperty(ref _selectedInsult, value);
+
+	} 
 
 	/// <summary>
 	/// Creates and initializes new InsulterViewModel object
 	/// </summary>
 	public InsulterViewModel()
     {
-        InsultsList = new Insults().InsultsList;
+
+		InsultsList = InsultBuilder.GetInsults();
         Initialized &= InsultsList.Count > 0;
-        InsultsList.Insert(0, WELCOME_MESSAGE);
+		InsultsList.Insert(0, WELCOME_MESSAGE);
+		SelectedInsult = InsultsList[0];
 
-    } //InsulterViewModel
+		SpeakingComplete += OnInsultSpoken;
 
+		//timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
+		Application.Current?.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
+		{
+			if (Initialized)
+			{
+				SpeakNow.Execute(InsultsList[0]);
+			}
 
-    /// <summary>
-    /// Speaks insult from insult list at specified positio 
-    /// </summary>
-    /// <param name="insultIndex">Integer index of insult in InsultsList to speak</param>
-    public void SpeakInsult(int insultIndex)
+			//terminate timer after speaking of intro phrase has started
+			return !Initialized;
+		});
+
+	} //InsulterViewModel
+
+    private void OnInsultSpoken(string spokenInsult)
     {
-        if (InsultsList.Count == 0 || insultIndex < 0 || insultIndex > InsultsList.Count - 1)
-        {
-            throw new ArgumentException($"no insult at specified index {insultIndex}, index value is invalid");
-        }
-        TextToSpeak = InsultsList[insultIndex];
-        DeleteInsultAt(insultIndex);
-        InsultsSpoken++;
-        SpeakNowAsync();
 
-    } //SpeakInsult
-
-
-    /// <summary>
-    /// Removes insult from list at specified index and re-initializes insults list if empty
-    /// </summary>
-    /// <param name="insultIndex">Integer list index of insult to be removed</param>
-    private void DeleteInsultAt(int insultIndex)
-    {
-        if (InsultsList.Count == 0 || insultIndex < 0 || insultIndex > InsultsList.Count - 1)
-        {
-            throw new ArgumentException($"no insult at specified index {insultIndex}, index value is invalid");
-        }
-
-        InsultsList.RemoveAt(insultIndex);
-
-        //reinitialize insults list if last insult was just removed
-        if (0 == InsultsList.Count)
-        {
-			_insultsList = new Insults().InsultsList;
+		InsultsSpoken++;
+		try
+		{
+			InsultsList.Remove(spokenInsult);
 		}
+		catch (Exception ex) 
+		{
+			Debug.WriteLine(ex.Message);
+		}
+		if (InsultsList.Count == 0)
+		{
+			InsultsList = InsultBuilder.GetInsults();
+		}		
 
-    } //DeleteInsultAt
+	}
 
-
+  
 
 } //InsulterViewModel

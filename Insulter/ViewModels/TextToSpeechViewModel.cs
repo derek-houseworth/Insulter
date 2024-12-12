@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace Insulter.ViewModels;
@@ -14,23 +15,22 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// <summary>
     /// Delegate to be called when current utterance has completed
     /// </summary>
-    public delegate void SpeakingCompleteHandler();
+    public delegate void SpeakingCompleteHandler(string spokenText);
     public event SpeakingCompleteHandler? SpeakingComplete;
 
 
     /// <summary>
     /// Command to initiate speaking of text contained in TextToSpeak property
     /// </summary>
-    public ICommand? SpeakNowAsyncCommand { private set; get; } = null;
+    public ICommand SpeakNow { private set; get; }
 
-
-	private List<Locale> _locales = [];
+	private readonly List<Locale> _locales = [];
 
 	/// <summary>
 	/// List of strings representing friendly name of all TTS voices currently installed on device
 	/// </summary>
-	private IList<string> _voices = [];
-    public IList<string> Voices
+	private ObservableCollection<string> _voices = [];
+    public ObservableCollection<string> Voices
     {
         get => _voices;
         private set => SetProperty(ref _voices, value);
@@ -41,16 +41,22 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	/// <summary>
 	/// String representing currently selected voice from TTS voices list
 	/// </summary>
-	private string _selectedVoice= string.Empty;
+	private string _selectedVoice = string.Empty;
     public string SelectedVoice
     {
-        get =>_selectedVoice; 
-        set => SetProperty(ref _selectedVoice, value);
+        get =>_selectedVoice;
+        set 
+        {
+            if (value != _selectedVoice && Voices.Contains(value))
+            {
+				SetProperty(ref _selectedVoice, value);
+			}			
+		} 
 
     } //SelectedLocale
 
 	/// <summary>
-	/// true if speaking is possible, i.e. initialization successfuy and not currently speaking
+	/// true if speaking is possible, i.e. initialization successfully and not currently speaking
 	/// </summary>
 	private bool _canSpeak = false;
     public bool CanSpeak
@@ -90,26 +96,15 @@ public partial class TextToSpeechViewModel : ViewModelBase
 
 
     /// <summary>
-    /// Text of phrase to be spoken
-    /// </summary>
-    private string _textToSpeak = "";
-    public string TextToSpeak
-    {
-        get => _textToSpeak;
-        set => SetProperty(ref _textToSpeak, value);
-    
-    } //TextToSpeak
-
-
-    /// <summary>
     /// true if view model initialization has successfully completed, false otherwise
     /// </summary>
     internal bool _initialized = false;
     public bool Initialized
     {
         get => _initialized;
-        set => SetProperty(ref _initialized, value); 
-    }
+        set => SetProperty(ref _initialized, value);
+
+	} //Initialized
 
 
 	/// <summary>
@@ -117,8 +112,12 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	/// </summary>
 	public TextToSpeechViewModel()
     {
+		SpeakNow = new Command<string>(
+        	execute: (string textToSpeak) => SpeakNowAsync(textToSpeak),
+	        canExecute: (string textToSpeak) => { return CanSpeak; }
+	    );
 
-        InitializeViewModelAsync();
+		InitializeViewModelAsync();
 
     } //TextToSpeechViewModel
 
@@ -130,6 +129,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
     private async void InitializeViewModelAsync()
     {
 		Initialized = false;
+        CanSpeak = false;
 
 		Debug.WriteLine("*** InitializeViewModelAsync: start");
 
@@ -141,27 +141,24 @@ public partial class TextToSpeechViewModel : ViewModelBase
         }
 		Debug.WriteLine($"InitializeViewModelAsync: found {_locales.Count} locales");
 		_locales.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
-        List<string> voiceListItems = [];
         foreach (Locale locale in _locales)
         {
             //locale name string value on Android already contains language and country 
             string item = DeviceInfo.Current.Platform == DevicePlatform.Android ? locale.Name :
                 $"{locale.Name} ({locale.Country}{locale.Language})";
-			voiceListItems.Add(item);
+			Voices.Add(item);
 		}
-        Voices = voiceListItems;
-		SelectedVoice = Voices[0];
+        SelectedVoice = Voices[0];
 
 		//view model state can be restored after locales list successfully generated
 		RestoreState();
 
-		SpeakNowAsyncCommand = new Command(SpeakNowAsync, canExecute: () => { return CanSpeak; });
-
-		((Command)SpeakNowAsyncCommand).ChangeCanExecute();
+		((Command)SpeakNow).ChangeCanExecute();
 
 		Initialized = true;
         CanSpeak = true;
 		Debug.WriteLine("*** InitializeViewModelAsync: completed");
+
 
 	} //InitializeViewModelAsync
 
@@ -195,12 +192,16 @@ public partial class TextToSpeechViewModel : ViewModelBase
         if (Voices is not null)
         {
             int selectedVoiceIndex = Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0);
-            if (selectedVoiceIndex > Voices.Count - 1) selectedVoiceIndex = 0;
+            if (selectedVoiceIndex < 0 || selectedVoiceIndex > Voices.Count - 1)
+            {
+				selectedVoiceIndex = 0;
+			}            
             SelectedVoice = Voices[selectedVoiceIndex];
         }
 
-        Volume = Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX/2 + VOLUME_MIN));
-		Pitch = Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX/2 + PITCH_MIN));
+        Volume = Math.Clamp(Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
+
+		Pitch = Math.Clamp(Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
 
 	} //RestoreState
 
@@ -209,15 +210,15 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	/// disables SpeakNowAsync view model command and calls MAUI API to asynchronously speak text specified 
 	/// by TextToSpeaker property using locale (voice), pitch and volume values from respective properties, 
 	/// </summary>
-	public async void SpeakNowAsync()
+	protected async void SpeakNowAsync(string textToSpeak)
     {
-
-        if (!Initialized || Voices  == null || SpeakNowAsyncCommand == null || Voices.Count == 0) 
+        if (!Initialized || !CanSpeak || Voices == null || Voices.Count == 0 || textToSpeak is null) 
         { 
             return; 
         }
+        CanSpeak = false;
 
-        SelectedVoice ??= Voices[0];
+		SelectedVoice ??= Voices[0];
         var speechOptions = new SpeechOptions()
         {
             Volume = Volume,
@@ -229,17 +230,16 @@ public partial class TextToSpeechViewModel : ViewModelBase
         Debug.WriteLine("SpeakNowAsync(): Language={0}\tName={1}\tText={2}\tVolume={3:N1}\tPitch={4:N1}",
             speechOptions.Locale.Language,
             speechOptions.Locale.Name,
-            _textToSpeak,
+            textToSpeak,
             speechOptions.Volume,
             speechOptions.Pitch);
 
-        CanSpeak = false;
-        ((Command)SpeakNowAsyncCommand).ChangeCanExecute();
-        await TextToSpeech.SpeakAsync(_textToSpeak, speechOptions).ContinueWith((t) =>
+        ((Command)SpeakNow).ChangeCanExecute();
+        await TextToSpeech.SpeakAsync(textToSpeak, speechOptions).ContinueWith((t) =>
         {
             CanSpeak = true;
-            ((Command)SpeakNowAsyncCommand).ChangeCanExecute();
-            SpeakingComplete?.Invoke();               
+            ((Command)SpeakNow).ChangeCanExecute();
+            SpeakingComplete?.Invoke(textToSpeak);               
 
         }, TaskScheduler.FromCurrentSynchronizationContext());
 
