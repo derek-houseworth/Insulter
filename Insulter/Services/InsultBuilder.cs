@@ -34,7 +34,7 @@ public class InsultBuilder
 	/// from adjectives, adverbs and nouns lists
 	/// </summary>
 	/// <returns>List<string> containing insults</string></returns>
-	public static ObservableCollection<string>GetInsults(bool singleInsult = false)
+	public static ObservableCollection<string>GetInsults(bool getSingleInsult = false)
     {
         Random random = new();
 
@@ -66,7 +66,7 @@ public class InsultBuilder
 
             insults.Add(insult.ToString());
 
-			if (singleInsult) break;
+			if (getSingleInsult) break;
         }
 
         //System.Diagnostics.Debug.WriteLine($"generated {insultsList.Count} insults");
@@ -75,13 +75,14 @@ public class InsultBuilder
 
 	} //GetInsults
 
+	
 	public static string GetInsult()
 	{
 		return GetInsults(true)[0];
 	}
 
 	/// <summary>
-	/// loads word list from resource file specified by resourceID
+	/// loads word list from resource file in executing assembly specified by resourceId
 	/// </summary>
 	/// <param name="resourceId">name of resource file containing words in text format, 1 word per line</param>
 	/// <returns>List<string> containing words read from resource file</string></returns>
@@ -104,6 +105,7 @@ public class InsultBuilder
 				}
 			}
 		}
+
 		return insultWordsList;
 
     } //ReadWordListFromResource

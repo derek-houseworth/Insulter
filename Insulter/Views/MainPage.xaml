@@ -97,7 +97,7 @@
                     Style="{StaticResource controlLabelStyle}"                    
                     Grid.Row="1"/>
             <Slider Value="{Binding Pitch}"
-                    Minimum="0.01"
+                    Minimum="0.0"
                     Maximum="2.0"
                     Grid.Row="1"
                     Grid.Column="1"
@@ -117,9 +117,8 @@
                 HorizontalOptions="Center"
                 WidthRequest="{OnIdiom 800, Phone=340}"
                 SelectionMode="Single"
-                SelectedItem="{Binding SelectedInsult, Mode=TwoWay}"
                 SelectionChangedCommand="{Binding SpeakNow}"
-                SelectionChangedCommandParameter="{Binding SelectedInsult}"
+                SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}"
                 IsVisible="{Binding Initialized}"
                 IsEnabled="{Binding CanSpeak}">
             <CollectionView.ItemTemplate>

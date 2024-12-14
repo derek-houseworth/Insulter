@@ -7,7 +7,7 @@ namespace Insulter.ViewModels;
 public partial class TextToSpeechViewModel : ViewModelBase
 {
 
-    private const string APP_SETTINGS_LOCALE_INDEX_KEY = nameof(SelectedVoice);
+    private const string APP_SETTINGS_VOICE_KEY = nameof(SelectedVoice);
     private const string APP_SETTINGS_VOLUME_KEY = nameof(Volume);
     private const string APP_SETTINGS_PITCH_KEY = nameof(Pitch);
 
@@ -55,6 +55,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
 
     } //SelectedLocale
 
+
 	/// <summary>
 	/// true if speaking is possible, i.e. initialization successfully and not currently speaking
 	/// </summary>
@@ -84,7 +85,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// <summary>
     /// Pitch for voice 
     /// </summary>
-    const float PITCH_MIN = 0.01f;
+    const float PITCH_MIN = 0.0f;
     const float PITCH_MAX = 2.0f;
     private float _pitch = 1.0f;
     public float Pitch
@@ -169,11 +170,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public void SaveState()
 	{
 
-        if (Voices is not null && SelectedVoice is not null)
-        {
-            Preferences.Set(APP_SETTINGS_LOCALE_INDEX_KEY, Voices.IndexOf(SelectedVoice));
-        }
-
+		Preferences.Set(APP_SETTINGS_VOICE_KEY, SelectedVoice);
 		Preferences.Set(APP_SETTINGS_VOLUME_KEY, Volume);
 		Preferences.Set(APP_SETTINGS_PITCH_KEY, Pitch);
 
@@ -189,17 +186,9 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	private void RestoreState()
 	{
 
-        if (Voices is not null)
-        {
-            int selectedVoiceIndex = Preferences.Get(APP_SETTINGS_LOCALE_INDEX_KEY, 0);
-            if (selectedVoiceIndex < 0 || selectedVoiceIndex > Voices.Count - 1)
-            {
-				selectedVoiceIndex = 0;
-			}            
-            SelectedVoice = Voices[selectedVoiceIndex];
-        }
+		SelectedVoice = Preferences.Get(APP_SETTINGS_VOICE_KEY, string.Empty);
 
-        Volume = Math.Clamp(Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
+		Volume = Math.Clamp(Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
 
 		Pitch = Math.Clamp(Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
 
@@ -212,7 +201,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	/// </summary>
 	protected async void SpeakNowAsync(string textToSpeak)
     {
-        if (!Initialized || !CanSpeak || Voices == null || Voices.Count == 0 || textToSpeak is null) 
+        if (!Initialized || !CanSpeak) 
         { 
             return; 
         }
@@ -223,16 +212,15 @@ public partial class TextToSpeechViewModel : ViewModelBase
         {
             Volume = Volume,
             Pitch = Pitch,
-            //Locale = _locales.ElementAt<Locale>(_random.Next(0, _locales.Count())) //.FirstOrDefault();
             Locale = _locales[Voices.IndexOf(SelectedVoice)]
         };
 
-        Debug.WriteLine("SpeakNowAsync(): Language={0}\tName={1}\tText={2}\tVolume={3:N1}\tPitch={4:N1}",
+        Debug.WriteLine("SpeakNowAsync(): Language= {0}\tName= {1}\tVolume= {2:N1}\tPitch= {3:N1}\t\tText= {4}",
             speechOptions.Locale.Language,
             speechOptions.Locale.Name,
-            textToSpeak,
             speechOptions.Volume,
-            speechOptions.Pitch);
+            speechOptions.Pitch,
+			textToSpeak);
 
         ((Command)SpeakNow).ChangeCanExecute();
         await TextToSpeech.SpeakAsync(textToSpeak, speechOptions).ContinueWith((t) =>

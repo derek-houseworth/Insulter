@@ -20,6 +20,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
 	} //InsultsSpoken
 
+
 	/// <summary>
 	/// insults list
 	/// </summary>
@@ -31,13 +32,6 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
 	} //InsultsList
 
-	private string _selectedInsult = string.Empty;
-	public string SelectedInsult
-	{
-		get => _selectedInsult;
-		set => SetProperty(ref _selectedInsult, value);
-
-	} 
 
 	/// <summary>
 	/// Creates and initializes new InsulterViewModel object
@@ -47,8 +41,6 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
 		InsultsList = InsultBuilder.GetInsults();
         Initialized &= InsultsList.Count > 0;
-		InsultsList.Insert(0, WELCOME_MESSAGE);
-		SelectedInsult = InsultsList[0];
 
 		SpeakingComplete += OnInsultSpoken;
 
@@ -57,7 +49,8 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 		{
 			if (Initialized)
 			{
-				SpeakNow.Execute(InsultsList[0]);
+				InsultsList.Insert(0, WELCOME_MESSAGE);
+				SpeakNowAsync(InsultsList[0]);
 			}
 
 			//terminate timer after speaking of intro phrase has started
@@ -81,10 +74,9 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 		if (InsultsList.Count == 0)
 		{
 			InsultsList = InsultBuilder.GetInsults();
-		}		
+		}
 
-	}
+	} //OnInsultSpoken
 
-  
 
 } //InsulterViewModel
