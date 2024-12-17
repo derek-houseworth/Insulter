@@ -77,9 +77,9 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	public float Volume
     {
         get => _volume;
-        set => SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
+		set => SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
 
-    } //Volume
+	} //Volume
 
 
     /// <summary>
@@ -91,9 +91,9 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public float Pitch
     {
         get => _pitch;
-        set => SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));       
+		set => SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));       
 
-    } //Pitch
+	} //Pitch
 
 
     /// <summary>
@@ -201,12 +201,18 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	/// </summary>
 	protected async void SpeakNowAsync(string textToSpeak)
     {
-        if (!Initialized || !CanSpeak) 
+        textToSpeak ??= string.Empty;
+
+        //validate view model state and input argument value before proceeding with speaking
+        if (!Initialized || !CanSpeak || string.IsNullOrEmpty(textToSpeak)) 
         { 
             return; 
         }
+
+        //flag indicates vew model is currently speaking 
         CanSpeak = false;
 
+        //speak with 1st voice in list if not previously chosen
 		SelectedVoice ??= Voices[0];
         var speechOptions = new SpeechOptions()
         {
@@ -223,7 +229,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
 			textToSpeak);
 
         ((Command)SpeakNow).ChangeCanExecute();
-        await TextToSpeech.SpeakAsync(textToSpeak, speechOptions).ContinueWith((t) =>
+        await TextToSpeech.SpeakAsync(textToSpeak.Trim(), speechOptions).ContinueWith((t) =>
         {
             CanSpeak = true;
             ((Command)SpeakNow).ChangeCanExecute();

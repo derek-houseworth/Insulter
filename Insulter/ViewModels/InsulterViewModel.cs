@@ -61,16 +61,20 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
     private void OnInsultSpoken(string spokenInsult)
     {
-
+		//count of insults spoken
 		InsultsSpoken++;
+
 		try
 		{
+			//remove insult from list after it has been spoken
 			InsultsList.Remove(spokenInsult);
 		}
 		catch (Exception ex) 
 		{
 			Debug.WriteLine(ex.Message);
 		}
+
+		//load insults if list is empty
 		if (InsultsList.Count == 0)
 		{
 			InsultsList = InsultBuilder.GetInsults();
