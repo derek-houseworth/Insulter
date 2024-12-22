@@ -63,7 +63,8 @@
                 <Setter Property="TextColor" Value="Black" />
                 <Setter Property="HorizontalOptions" Value="End" />
                 <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="IsVisible" Value="{Binding Initialized}" />
+                <Setter Property="IsVisible" Value="{Binding Initialized}"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
             </Style>
             <Style x:Key="sliderStyle" TargetType="Slider">
                 <Setter Property="IsVisible" Value="{Binding Initialized}" />
@@ -83,8 +84,7 @@
               Padding="30"
               WidthRequest="{OnIdiom 800, Phone=340}">
             <Label Text="Voice" 
-                   Style="{StaticResource controlLabelStyle}"
-                   TranslationY="13"/>
+                   Style="{StaticResource controlLabelStyle}"/>
             <Picker ItemsSource="{Binding Voices}"
                     SelectedItem="{Binding SelectedVoice}"
                     IsVisible="{Binding Initialized}"
@@ -118,7 +118,7 @@
                 WidthRequest="{OnIdiom 800, Phone=340}"
                 SelectionMode="Single"
                 SelectionChangedCommand="{Binding SpeakNow}"
-                SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}"
+                SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem, x:DataType=CollectionView}"
                 IsVisible="{Binding Initialized}"
                 IsEnabled="{Binding CanSpeak}">
             <CollectionView.ItemTemplate>
