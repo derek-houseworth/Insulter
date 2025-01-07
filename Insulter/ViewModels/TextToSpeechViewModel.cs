@@ -50,6 +50,10 @@ public partial class TextToSpeechViewModel : ViewModelBase
             if (value != _selectedVoice && Voices.Contains(value))
             {
 				SetProperty(ref _selectedVoice, value);
+                if (AutoSave && Initialized)
+                {
+                    SaveState();
+                }
 			}			
 		} 
 
@@ -77,8 +81,17 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	public float Volume
     {
         get => _volume;
-		set => SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
-
+        set 
+        {
+            if (_volume != value)
+            {
+				SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
+				if (AutoSave && Initialized)
+				{
+					SaveState();
+				}
+			}
+		}		
 	} //Volume
 
 
@@ -91,8 +104,17 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public float Pitch
     {
         get => _pitch;
-		set => SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));       
-
+        set
+        {
+            if (_pitch != value)
+            {
+				SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));
+				if (AutoSave && Initialized)
+				{
+					SaveState();
+				}
+			}
+		}
 	} //Pitch
 
 
@@ -103,9 +125,21 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public bool Initialized
     {
         get => _initialized;
-        set => SetProperty(ref _initialized, value);
+        internal set => SetProperty(ref _initialized, value);
 
 	} //Initialized
+
+
+    /// <summary>
+    /// causes ViewModel to automatically persist any changes to persistable properties when changed
+    /// </summary>
+    internal bool autoSave = true;
+    public bool AutoSave
+    { 
+        get => autoSave;
+        set => SetProperty(ref autoSave, value);
+
+    } //autoSave
 
 
 	/// <summary>
@@ -118,16 +152,17 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	        canExecute: (string textToSpeak) => { return CanSpeak; }
 	    );
 
-		InitializeViewModelAsync();
-
-    } //TextToSpeechViewModel
+        InitializeViewModelAsync();
 
 
-    /// <summary>
-    /// prepares locales list, restores view model persisted state, updates command enabled status
-    /// </summary>
-    /// <returns></returns>
-    private async void InitializeViewModelAsync()
+	} //TextToSpeechViewModel
+
+
+	/// <summary>
+	/// prepares locales list, restores view model persisted state, updates command enabled status
+	/// </summary>
+	/// <returns></returns>
+	private async void InitializeViewModelAsync()
     {
 		Initialized = false;
         CanSpeak = false;
@@ -142,17 +177,36 @@ public partial class TextToSpeechViewModel : ViewModelBase
         }
 		Debug.WriteLine($"InitializeViewModelAsync: found {_locales.Count} locales");
 		_locales.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
-        foreach (Locale locale in _locales)
+        bool isAndroid = DeviceInfo.Current.Platform == DevicePlatform.Android;
+		foreach (Locale locale in _locales)
         {
             //locale name string value on Android already contains language and country 
-            string item = DeviceInfo.Current.Platform == DevicePlatform.Android ? locale.Name :
-                $"{locale.Name} ({locale.Country}{locale.Language})";
+            string item = locale.Name;
+            if (!isAndroid)
+            {
+				item += $" ({locale.Country}-{locale.Language})";
+			}            
 			Voices.Add(item);
 		}
-        SelectedVoice = Voices[0];
 
-		//view model state can be restored after locales list successfully generated
-		RestoreState();
+        //restore values of persisted view model properties if values exist and are valid
+        SelectedVoice = Voices[0];
+        if (Preferences.ContainsKey(APP_SETTINGS_VOICE_KEY))
+        {
+			string savedVoice = Preferences.Get(APP_SETTINGS_VOICE_KEY, string.Empty) ?? string.Empty;
+			if (Voices.Contains(savedVoice))
+			{
+				SelectedVoice = savedVoice;
+			}
+		}
+        if (Preferences.ContainsKey(APP_SETTINGS_VOLUME_KEY))
+        {
+            Volume = Math.Clamp(Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
+        }
+        if (Preferences.ContainsKey(APP_SETTINGS_PITCH_KEY))
+        {
+			Pitch = Math.Clamp(Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
+		}
 
 		((Command)SpeakNow).ChangeCanExecute();
 
@@ -175,24 +229,6 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		Preferences.Set(APP_SETTINGS_PITCH_KEY, Pitch);
 
 	} //SaveState
-
-
-	/// <summary>
-	/// restores view model persisted data from application preferences key/value store,
-	/// sets property values to defaults if no persisted property values found
-    /// method is private because initialization of LocalesList has to asynchronously complete before 
-    /// view model state can be restored
-	/// </summary>
-	private void RestoreState()
-	{
-
-		SelectedVoice = Preferences.Get(APP_SETTINGS_VOICE_KEY, string.Empty);
-
-		Volume = Math.Clamp(Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
-
-		Pitch = Math.Clamp(Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
-
-	} //RestoreState
 
 
 	/// <summary>

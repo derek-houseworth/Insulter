@@ -26,7 +26,6 @@ public partial class InsulterWindow : Window
 	/// </summary>
 	protected override void OnCreated()
 	{
-		//view model's initial state restored from view model's async initialization code
 
     } //OnCreated
 
@@ -36,7 +35,7 @@ public partial class InsulterWindow : Window
 	/// </summary>
 	protected override void OnDeactivated()
 	{
-
+		//unnecessary if InsulterViewModel.AutoSave property is true
 		if (_mainPage is not null)
 		{
 			((InsulterViewModel)_mainPage.BindingContext).SaveState();
@@ -50,6 +49,7 @@ public partial class InsulterWindow : Window
 	/// </summary>
 	protected override void OnDestroying()
 	{
+		//unnecessary if InsulterViewModel.AutoSave property is true
 		if (_mainPage is not null)
 		{
 			((InsulterViewModel)_mainPage.BindingContext).SaveState();
