@@ -133,11 +133,11 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// <summary>
     /// causes ViewModel to automatically persist any changes to persistable properties when changed
     /// </summary>
-    internal bool autoSave = true;
+    internal bool _autoSave = false;
     public bool AutoSave
     { 
-        get => autoSave;
-        set => SetProperty(ref autoSave, value);
+        get => _autoSave;
+        set => SetProperty(ref _autoSave, value);
 
     } //autoSave
 

@@ -24,6 +24,7 @@ namespace Insulter.Tests
 				Assert.That(viewModel.SelectedVoice, Is.EqualTo(string.Empty));
 				Assert.That(viewModel.Initialized, Is.False);
 				Assert.That(viewModel.CanSpeak, Is.False);
+				Assert.That(viewModel.AutoSave, Is.False);
 				Assert.That(viewModel.SpeakNow.CanExecute(null), Is.False);
 			});
 
