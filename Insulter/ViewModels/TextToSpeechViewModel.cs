@@ -180,11 +180,12 @@ public partial class TextToSpeechViewModel : ViewModelBase
         bool isAndroid = DeviceInfo.Current.Platform == DevicePlatform.Android;
 		foreach (Locale locale in _locales)
         {
-            //locale name string value on Android already contains language and country 
+            //locale name string value on Android already contains language and country;
+            //only add lang & country codes to display string on non-Android platforms
             string item = locale.Name;
             if (!isAndroid)
             {
-				item += $" ({locale.Country}-{locale.Language})";
+				item += $" ({locale.Language}{locale.Country})";
 			}            
 			Voices.Add(item);
 		}
