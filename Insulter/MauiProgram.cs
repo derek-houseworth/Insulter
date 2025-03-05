@@ -12,9 +12,9 @@ namespace Insulter
 				.UseMauiApp<App>()
 				.ConfigureFonts(fonts =>
 				{
-					fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("BlackAdderITCRegular.ttf", "BlackAdderITCRegular");
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 					fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-					fonts.AddFont("ITCBLKAD.TTF", "BlackAdderITCRegular");
 				});
 
 #if DEBUG
