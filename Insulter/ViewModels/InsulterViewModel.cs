@@ -39,7 +39,11 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 	public InsulterViewModel()
     {
 
-		InsultsList = InsultBuilder.GetInsults();
+        InsultsList.Insert(0, WELCOME_MESSAGE);
+		foreach (var insult in InsultBuilder.GetInsults())
+		{
+			InsultsList.Add(insult);
+		}
         Initialized &= InsultsList.Count > 0;
 
 		SpeakingComplete += OnInsultSpoken;
@@ -49,15 +53,23 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 		{
 			if (Initialized)
 			{
-				InsultsList.Insert(0, WELCOME_MESSAGE);
-				SpeakNowAsync(InsultsList[0]);
-			}
+				
+                SelectedInsult = WELCOME_MESSAGE;
+                //SpeakNowAsync(InsultsList[0]);
+            }
 
 			//terminate timer after speaking of intro phrase has started
 			return !Initialized;
 		});
 
 	} //InsulterViewModel
+
+	private string _selectedInsult = String.Empty;
+	public string SelectedInsult
+	{
+		get => _selectedInsult;
+		set => SetProperty(ref _selectedInsult, value);
+	}
 
     private void OnInsultSpoken(string spokenInsult)
     {

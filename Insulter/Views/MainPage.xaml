@@ -113,14 +113,17 @@
                     Style="{StaticResource sliderStyle}"/>
         </Grid>
         <CollectionView ItemsSource="{Binding InsultsList}"
-                Grid.Row="1"
-                HorizontalOptions="Center"
-                WidthRequest="{OnIdiom 800, Phone=340}"
-                SelectionMode="Single"
-                SelectionChangedCommand="{Binding SpeakNow}"
-                SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem, x:DataType=CollectionView}"
-                IsVisible="{Binding Initialized}"
-                IsEnabled="{Binding CanSpeak}">
+                        x:Name="InsultsCollectionView"
+                        Grid.Row="1"
+                        HorizontalOptions="Center"
+                        WidthRequest="{OnIdiom 800, Phone=340}"
+                        SelectionMode="Single"
+                        SelectionChangedCommand="{Binding SpeakNow}"
+                        SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem, x:DataType=CollectionView}"
+                        IsVisible="{Binding Initialized}"
+                        IsEnabled="{Binding CanSpeak}"
+                        SelectedItem="{Binding SelectedInsult}"
+                        SelectionChanged="InsultsCollectionView_SelectionChanged">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="{x:Type x:String}">
                     <Grid Style="{StaticResource gridItemStyle}">
