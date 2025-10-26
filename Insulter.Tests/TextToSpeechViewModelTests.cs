@@ -14,7 +14,7 @@ namespace Insulter.Tests
 		[Test]
 		public void TestInitialState()
 		{
-			TestHelper.DebugWriteLine($"{this.GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+			TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
 
 			var viewModel = new TextToSpeechViewModel();
 			Assert.Multiple(() =>

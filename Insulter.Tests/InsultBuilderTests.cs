@@ -13,7 +13,7 @@ namespace Insulter.Tests
 		[Test]
 		public void TestGetInsult()
 		{
-			TestHelper.DebugWriteLine($"{this.GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+			TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
 
 			var insult = InsultBuilder.GetInsult();
 			TestHelper.DebugWriteLine(insult);
@@ -25,14 +25,14 @@ namespace Insulter.Tests
 		[Test]
 		public void TestGetInsults()
 		{
-			TestHelper.DebugWriteLine($"{this.GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+			TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
 
 			//generate insults list
 			var insultsList = InsultBuilder.GetInsults();
 			Assert.That(insultsList, Is.Not.Null);
 
-			Assert.Multiple(() =>
-			{
+            using (Assert.EnterMultipleScope())
+            {
 				//verify list not empty 
 				Assert.That(insultsList, Has.Count.GreaterThan(0));
 
@@ -45,7 +45,7 @@ namespace Insulter.Tests
 					Assert.That(string.IsNullOrEmpty(insult), Is.False);
 					TestHelper.DebugWriteLine(insult);
 				}
-			});
+			}
 
 		} //TestGetInsults
 
