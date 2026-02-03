@@ -8,10 +8,10 @@ namespace Insulter.Tests
 		[SetUp]
 		public void Setup()
 		{
-		}
+        } //Setup
 
 
-		[Test]
+        [Test]
 		public void TestInitialState()
 		{
 			TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");

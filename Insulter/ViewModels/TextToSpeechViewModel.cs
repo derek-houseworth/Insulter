@@ -258,7 +258,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
             Locale = _locales[Voices.IndexOf(SelectedVoice)]
         };
 
-        Debug.WriteLine("SpeakNowAsync(): Language= {0}\tName= {1}\tVolume= {2:N1}\tPitch= {3:N1}\t\tText= {4}",
+        Debug.WriteLine("SpeakNowAsync(): Language: {0}\tName: {1}\tVolume: {2:N1}\tPitch: {3:N1}\t\tText: {4}",
             speechOptions.Locale.Language,
             speechOptions.Locale.Name,
             speechOptions.Volume,
