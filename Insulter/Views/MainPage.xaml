@@ -7,9 +7,9 @@
              Title="Shakespearean Insulter"
              BackgroundColor="AntiqueWhite">
 
-    <ContentPage.BindingContext>
+    <!--<ContentPage.BindingContext>
         <viewModels:InsulterViewModel/>
-    </ContentPage.BindingContext>
+    </ContentPage.BindingContext>-->
 
     <ContentPage.Resources>
         <ResourceDictionary>

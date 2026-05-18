@@ -1,15 +1,18 @@
-﻿using Insulter.ViewModels;
+﻿using Insulter.Services;
+using Insulter.ViewModels;
 
 namespace Insulter.Views;
 
 public partial class MainPage : ContentPage
 {
-
+    InsulterViewModel viewModel = new (new TextToSpeechService(), new PreferencesService());
     public MainPage()
 	{
 		InitializeComponent();
+        BindingContext = viewModel;
 
-	} //MainPage
+
+    } //MainPage
 
     private void InsultsCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

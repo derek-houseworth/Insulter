@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Insulter.Services;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -24,7 +25,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// </summary>
     public ICommand SpeakNow { private set; get; }
 
-	private readonly List<Locale> _locales = [];
+	private readonly List<VoiceLocale> _voiceLocales = [];
 
 	/// <summary>
 	/// List of strings representing friendly name of all TTS voices currently installed on device
@@ -141,13 +142,18 @@ public partial class TextToSpeechViewModel : ViewModelBase
 
     } //autoSave
 
+    private readonly ITextToSpeechService _ttsService;
+    private readonly IPreferencesService _prefsService;
 
-	/// <summary>
-	/// view model constructor, starts async initialization of view model
-	/// </summary>
-	public TextToSpeechViewModel()
+    /// <summary>
+    /// view model constructor, starts async initialization of view model
+    /// </summary>
+    public TextToSpeechViewModel(ITextToSpeechService ttsService, IPreferencesService prefsService)
     {
-		SpeakNow = new Command<string>(
+        _ttsService = ttsService ?? throw new ArgumentNullException(nameof(ttsService));
+        _prefsService = prefsService ?? throw new ArgumentNullException(nameof(prefsService));
+
+        SpeakNow = new Command<string>(
         	execute: (string textToSpeak) => SpeakNowAsync(textToSpeak),
 	        canExecute: (string textToSpeak) => { return CanSpeak; }
 	    );
@@ -168,45 +174,45 @@ public partial class TextToSpeechViewModel : ViewModelBase
         CanSpeak = false;
 
 		Debug.WriteLine("*** InitializeViewModelAsync: start");
-
+        
         //build and sort voice locales list
-        foreach (Locale locale in await TextToSpeech.GetLocalesAsync())
+        foreach (VoiceLocale voiceLocale in await _ttsService.GetVoiceLocalesAsync())
         {
             //Debug.WriteLine(locale.Name);
-            _locales.Add(locale);
+            _voiceLocales.Add(voiceLocale);
         }
-		Debug.WriteLine($"InitializeViewModelAsync: found {_locales.Count} locales");
-		_locales.Sort(new Comparison<Locale>((x, y) => String.Compare(x.Name, y.Name)));
+		Debug.WriteLine($"InitializeViewModelAsync: found {_voiceLocales.Count} locales");
+        _voiceLocales.Sort(new Comparison<VoiceLocale>((x, y) => String.Compare(x.Name, y.Name)));
         bool isAndroid = DeviceInfo.Current.Platform == DevicePlatform.Android;
-		foreach (Locale locale in _locales)
+		foreach (VoiceLocale voiceLocale in _voiceLocales)
         {
             //locale name string value on Android already contains language and country;
             //only add lang & country codes to display string on non-Android platforms
-            string item = locale.Name;
+            string item = voiceLocale.Name;
             if (!isAndroid)
             {
-				item += $" ({locale.Language}{locale.Country})";
+				item += $" ({voiceLocale.Language}{voiceLocale.Country})";
 			}            
 			Voices.Add(item);
 		}
 
         //restore values of persisted view model properties if values exist and are valid
         SelectedVoice = Voices[0];
-        if (Preferences.ContainsKey(APP_SETTINGS_VOICE_KEY))
+        if (_prefsService.ContainsKey(APP_SETTINGS_VOICE_KEY))
         {
-			string savedVoice = Preferences.Get(APP_SETTINGS_VOICE_KEY, string.Empty) ?? string.Empty;
+			string savedVoice = _prefsService.Get(APP_SETTINGS_VOICE_KEY, string.Empty) ?? string.Empty;
 			if (Voices.Contains(savedVoice))
 			{
 				SelectedVoice = savedVoice;
 			}
 		}
-        if (Preferences.ContainsKey(APP_SETTINGS_VOLUME_KEY))
+        if (_prefsService.ContainsKey(APP_SETTINGS_VOLUME_KEY))
         {
-            Volume = Math.Clamp(Preferences.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
+            Volume = Math.Clamp(_prefsService.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
         }
-        if (Preferences.ContainsKey(APP_SETTINGS_PITCH_KEY))
+        if (_prefsService.ContainsKey(APP_SETTINGS_PITCH_KEY))
         {
-			Pitch = Math.Clamp(Preferences.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
+			Pitch = Math.Clamp(_prefsService.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
 		}
 
 		((Command)SpeakNow).ChangeCanExecute();
@@ -225,9 +231,9 @@ public partial class TextToSpeechViewModel : ViewModelBase
     public void SaveState()
 	{
 
-		Preferences.Set(APP_SETTINGS_VOICE_KEY, SelectedVoice);
-		Preferences.Set(APP_SETTINGS_VOLUME_KEY, Volume);
-		Preferences.Set(APP_SETTINGS_PITCH_KEY, Pitch);
+        _prefsService.Set(APP_SETTINGS_VOICE_KEY, SelectedVoice);
+        _prefsService.Set(APP_SETTINGS_VOLUME_KEY, Volume);
+        _prefsService.Set(APP_SETTINGS_PITCH_KEY, Pitch);
 
 	} //SaveState
 
@@ -246,33 +252,52 @@ public partial class TextToSpeechViewModel : ViewModelBase
             return; 
         }
 
-        //flag indicates vew model is currently speaking 
+        //CanSpeak flag value set to false indicates view model currently speaking 
         CanSpeak = false;
 
-        //speak with 1st voice in list if not previously chosen
-		SelectedVoice ??= Voices[0];
-        var speechOptions = new SpeechOptions()
-        {
-            Volume = Volume,
-            Pitch = Pitch,
-            Locale = _locales[Voices.IndexOf(SelectedVoice)]
-        };
 
-        Debug.WriteLine("SpeakNowAsync(): Language: {0}\tName: {1}\tVolume: {2:N1}\tPitch: {3:N1}\t\tText: {4}",
-            speechOptions.Locale.Language,
-            speechOptions.Locale.Name,
-            speechOptions.Volume,
-            speechOptions.Pitch,
-			textToSpeak);
-
-        ((Command)SpeakNow).ChangeCanExecute();
-        await TextToSpeech.SpeakAsync(textToSpeak.Trim(), speechOptions).ContinueWith((t) =>
+        //simulate speaking for purpose of unit testing
+        if (DeviceInfo.Current.Platform == DevicePlatform.Unknown)
         {
+            ((Command)SpeakNow).ChangeCanExecute();
+            Task.Delay(25).Wait();
             CanSpeak = true;
             ((Command)SpeakNow).ChangeCanExecute();
-            SpeakingComplete?.Invoke(textToSpeak);               
+            SpeakingComplete?.Invoke(textToSpeak);
+            return;
+        }
 
-        }, TaskScheduler.FromCurrentSynchronizationContext());
+        foreach (var locale in await TextToSpeech.GetLocalesAsync())
+        {
+            if(_voiceLocales[Voices.IndexOf(SelectedVoice)].Id == locale.Id)
+            {
+                //speak with 1st voice in list if not previously chosen
+                SelectedVoice ??= Voices[0];
+                var speechOptions = new SpeechOptions()
+                {
+                    Volume = Volume,
+                    Pitch = Pitch,
+                    Locale = locale
+                };
+
+                Debug.WriteLine("SpeakNowAsync(): Language: {0}\tName: {1}\tVolume: {2:N1}\tPitch: {3:N1}\t\tText: {4}",
+                    speechOptions.Locale.Language,
+                    speechOptions.Locale.Name,
+                    speechOptions.Volume,
+                    speechOptions.Pitch,
+                    textToSpeak);
+
+                ((Command)SpeakNow).ChangeCanExecute();
+                await TextToSpeech.SpeakAsync(textToSpeak.Trim(), speechOptions).ContinueWith((t) =>
+                {
+                    CanSpeak = true;
+                    ((Command)SpeakNow).ChangeCanExecute();
+                    SpeakingComplete?.Invoke(textToSpeak);
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+        }
+
 
     } //SpeakNowAsync
 

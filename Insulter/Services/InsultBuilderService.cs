@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Insulter.Services;
 
-public class InsultBuilder
+public class InsultBuilderService
 {
 
 	private const string ADJECTIVES_FILE_NAME = "insultAdjectives.txt";

@@ -1,5 +1,4 @@
-﻿using Insulter.ViewModels;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Insulter
 {
@@ -22,7 +21,6 @@ namespace Insulter
 #endif
 
 			builder.Services.AddSingleton<Views.MainPage>();
-			builder.Services.AddSingleton<InsulterViewModel>();
 
 			return builder.Build();
 		}

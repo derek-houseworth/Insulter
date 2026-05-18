@@ -15,7 +15,7 @@ namespace Insulter.Tests
 		{
 			TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
 
-			var insult = InsultBuilder.GetInsult();
+			var insult = InsultBuilderService.GetInsult();
 			TestHelper.DebugWriteLine(insult);
 			Assert.That(string.IsNullOrEmpty(insult), Is.False);
 
@@ -28,7 +28,7 @@ namespace Insulter.Tests
 			TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
 
 			//generate insults list
-			var insultsList = InsultBuilder.GetInsults();
+			var insultsList = InsultBuilderService.GetInsults();
 			Assert.That(insultsList, Is.Not.Null);
 
             using (Assert.EnterMultipleScope())

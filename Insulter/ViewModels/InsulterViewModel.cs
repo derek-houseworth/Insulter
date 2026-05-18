@@ -10,7 +10,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
     private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
 
     /// <summary>
-    /// counter for number of insults spoken
+    /// count of number of insults spoken
     /// </summary>
     private int _insultsSpoken = 0;
     public int InsultsSpoken
@@ -33,23 +33,33 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 	} //InsultsList
 
 
-	/// <summary>
-	/// Creates and initializes new InsulterViewModel object
-	/// </summary>
-	public InsulterViewModel()
+
+
+    /// <summary>
+    /// string containing currently selected insult
+    /// </summary>
+    private string _selectedInsult = String.Empty; 
+	public string SelectedInsult
     {
+        get => _selectedInsult;
+        set => SetProperty(ref _selectedInsult, value);
+    }
 
+    /// <summary>
+    /// Creates and initializes new InsulterViewModel object
+    /// </summary>
+    public InsulterViewModel(ITextToSpeechService ttsService, IPreferencesService prefsService) : base(ttsService, prefsService)
+	{
+        //register call-back for when insult has been spoken
+        SpeakingComplete += OnInsultSpoken;
+
+        //initialize insults list with insults from insult builder service and insert welcome message at index 0
+        InsultsList = InsultBuilderService.GetInsults();
         InsultsList.Insert(0, WELCOME_MESSAGE);
-		foreach (var insult in InsultBuilder.GetInsults())
-		{
-			InsultsList.Add(insult);
-		}
-        Initialized &= InsultsList.Count > 0;
+        Initialized &= InsultsList.Count > 1;
 
-		SpeakingComplete += OnInsultSpoken;
-
-		//timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
-		Application.Current?.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
+        //timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
+        Application.Current?.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
 		{
 			if (Initialized)
 			{
@@ -64,12 +74,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
 	} //InsulterViewModel
 
-	private string _selectedInsult = String.Empty;
-	public string SelectedInsult
-	{
-		get => _selectedInsult;
-		set => SetProperty(ref _selectedInsult, value);
-	}
+
 
     private void OnInsultSpoken(string spokenInsult)
     {
@@ -89,7 +94,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 		//load insults if list is empty
 		if (InsultsList.Count == 0)
 		{
-			InsultsList = InsultBuilder.GetInsults();
+			InsultsList = InsultBuilderService.GetInsults();
 		}
 
 	} //OnInsultSpoken
