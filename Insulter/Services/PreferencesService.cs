@@ -1,28 +1,49 @@
-﻿namespace Insulter.Services
+﻿namespace Insulter.Services;
+
+public interface IPreferencesService
 {
-    internal class PreferencesService: IPreferencesService
+
+    bool ContainsKey(string key);
+    string Get(string key, string defaultValue);
+    int Get(string key, int defaultValue);
+    float Get(string key, float defaultValue);
+
+    void Set(string key, string value);
+    void Set(string key, int value);
+    void Set(string key, float value);
+
+} //IPreferencesService
+
+internal class PreferencesService : IPreferencesService
+{
+
+    public bool ContainsKey(string key)
     {
-
-        public bool ContainsKey(string key)
-        {
-            return Preferences.ContainsKey(key);
-        }
-        public string Get(string key, string defaultValue)
-        { 
-            return Preferences.Get(key, defaultValue) ?? defaultValue;
-        }
-        public float Get(string key, float defaultValue)
-        {
-            return Preferences.Get(key, defaultValue); 
-        }
-        public void Set(string key, string value)
-        {
-            Preferences.Set(key, value);
-        }
-        public void Set(string key, float value)
-        {
-            Preferences.Set(key, value);
-        }
-
+        return Preferences.ContainsKey(key);
     }
-}
+    public string Get(string key, string defaultValue)
+    {
+        return Preferences.Get(key, defaultValue) ?? defaultValue;
+    }
+    public int Get(string key, int defaultValue)
+    {
+        return Preferences.Get(key, defaultValue);
+    }
+    public float Get(string key, float defaultValue)
+    {
+        return Preferences.Get(key, defaultValue);
+    }
+    public void Set(string key, string value)
+    {
+        Preferences.Set(key, value);
+    }
+    public void Set(string key, int value)
+    {
+        Preferences.Set(key, value);
+    }
+    public void Set(string key, float value)
+    {
+        Preferences.Set(key, value);
+    }
+
+} //PreferencesService

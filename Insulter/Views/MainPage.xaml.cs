@@ -5,11 +5,10 @@ namespace Insulter.Views;
 
 public partial class MainPage : ContentPage
 {
-    InsulterViewModel viewModel = new (new TextToSpeechService(), new PreferencesService());
     public MainPage()
 	{
 		InitializeComponent();
-        BindingContext = viewModel;
+        BindingContext = new InsulterViewModel(new TextToSpeechService(), new PreferencesService());
 
 
     } //MainPage
@@ -23,6 +22,6 @@ public partial class MainPage : ContentPage
             cv.ScrollTo(vm.InsultsList.IndexOf(vm.SelectedInsult));
         }
 
+    } //InsultsCollectionView_SelectionChanged
 
-    }
 } //MainPage

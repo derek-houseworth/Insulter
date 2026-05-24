@@ -2,7 +2,7 @@
 
 namespace Insulter.Tests;
 
-public  class MockPreferencesService : IPreferencesService
+public class MockPreferencesService : IPreferencesService
 {
     Dictionary<string, string> _preferences;
 
@@ -11,13 +11,18 @@ public  class MockPreferencesService : IPreferencesService
         _preferences = [];
     }
     public bool ContainsKey(string key)
-    { 
+    {
         return _preferences.ContainsKey(key);
     }
 
     public string Get(string key, string defaultValue)
-    { 
+    {
         return ContainsKey(key) ? _preferences[key] : defaultValue;
+    }
+
+    public int Get(string key, int defaultValue)
+    {
+        return ContainsKey(key) ? (int)Convert.ToInt16(_preferences[key]) : defaultValue;
     }
 
     public float Get(string key, float defaultValue)
@@ -31,10 +36,22 @@ public  class MockPreferencesService : IPreferencesService
         {
             _preferences[key] = value;
         }
-        else 
+        else
         {
             _preferences.Add(key, value);
-        }            
+        }
+    }
+
+    public void Set(string key, int value)
+    {
+        if (ContainsKey(key))
+        {
+            _preferences[key] = value.ToString();
+        }
+        else
+        {
+            _preferences.Add(key, value.ToString());
+        }
     }
 
     public void Set(string key, float value)

@@ -94,7 +94,7 @@ public class TextToSpeechViewModelTests
             AutoSave = true
         };
 
-        //change property values from defaults to trigger the auto-save functionality
+        //change property values from defaults after instantiation to trigger  viewmodel's auto-save functionality
         viewModel.SelectedVoice = "fr (fr-FRFrench (France))";
         viewModel.Volume = 0.7f;
         viewModel.Pitch = 1.1f;

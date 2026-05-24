@@ -1,5 +1,10 @@
 ﻿namespace Insulter.Services;
 
+public interface ITextToSpeechService
+{
+    Task<List<VoiceLocale>> GetVoiceLocalesAsync();
+}
+
 public class TextToSpeechService : ITextToSpeechService
 {
     public async Task<List<VoiceLocale>> GetVoiceLocalesAsync() 
@@ -12,5 +17,5 @@ public class TextToSpeechService : ITextToSpeechService
         return voices;
 
     }
-    
-}
+
+} //TextToSpeechService
