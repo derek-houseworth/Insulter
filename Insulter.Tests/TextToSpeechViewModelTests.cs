@@ -15,7 +15,7 @@ public class TextToSpeechViewModelTests
     [Test]
     public void TestInitialState()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
 
         var viewModel = new TextToSpeechViewModel(new MockTtsService(), new MockPreferencesService());
@@ -39,7 +39,7 @@ public class TextToSpeechViewModelTests
     [Test]
     public void TestNullServiceArgsInConstructor()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
         using (Assert.EnterMultipleScope())
         {
@@ -53,7 +53,7 @@ public class TextToSpeechViewModelTests
     [Test]
     public void TestVoiceSelection()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
         var viewModel = new TextToSpeechViewModel(new MockTtsService(), new MockPreferencesService())
         {
@@ -68,7 +68,7 @@ public class TextToSpeechViewModelTests
     [Test]
     public void TestVolumeAndPitch()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
         var viewModel = new TextToSpeechViewModel(new MockTtsService(), new MockPreferencesService())
         {
             Volume = 0.8f,
@@ -85,7 +85,7 @@ public class TextToSpeechViewModelTests
     [Test]
     public void TestAutoSave()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
         var mockTtsService = new MockTtsService();
         var mockPrefsService = new MockPreferencesService();
@@ -116,7 +116,7 @@ public class TextToSpeechViewModelTests
     [Test]
     public void TestLoadPropertyValuesFromPreferences()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
         var mockTtsService = new MockTtsService();
         var mockPrefsService = new MockPreferencesService();

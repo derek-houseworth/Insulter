@@ -15,7 +15,7 @@ public class InsulterViewModelTests
 	[Test]
 	public void TestInitialState()
 	{
-		TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+		TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
 		var viewModel = new InsulterViewModel(new MockTtsService(), new MockPreferencesService());
         using (Assert.EnterMultipleScope())
@@ -34,7 +34,7 @@ public class InsulterViewModelTests
     [Test]
     public void TestSpeakAllInsults()
     {
-        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()}:");
+        TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
         
 		var viewModel = new InsulterViewModel(new MockTtsService(), new MockPreferencesService());
         using (Assert.EnterMultipleScope())
