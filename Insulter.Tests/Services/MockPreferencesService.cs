@@ -1,6 +1,6 @@
 ﻿using Insulter.Services;
 
-namespace Insulter.Tests;
+namespace Insulter.Tests.Services;
 
 public class MockPreferencesService : IPreferencesService
 {

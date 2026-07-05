@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Insulter.ViewModels;
+using Insulter.Tests.Services;
 
 namespace Insulter.Tests;
 

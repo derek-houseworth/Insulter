@@ -197,23 +197,7 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		}
 
         //restore values of persisted view model properties if values exist and are valid
-        SelectedVoice = Voices[0];
-        if (_prefsService.ContainsKey(APP_SETTINGS_VOICE_KEY))
-        {
-			string savedVoice = _prefsService.Get(APP_SETTINGS_VOICE_KEY, string.Empty) ?? string.Empty;
-			if (Voices.Contains(savedVoice))
-			{
-				SelectedVoice = savedVoice;
-			}
-		}
-        if (_prefsService.ContainsKey(APP_SETTINGS_VOLUME_KEY))
-        {
-            Volume = Math.Clamp(_prefsService.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
-        }
-        if (_prefsService.ContainsKey(APP_SETTINGS_PITCH_KEY))
-        {
-			Pitch = Math.Clamp(_prefsService.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
-		}
+        RestoreState();
 
 		((Command)SpeakNow).ChangeCanExecute();
 
@@ -225,8 +209,37 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	} //InitializeViewModelAsync
 
 
-	/// <summary>
-    /// saves view model persisted property value in application preferences key/value store
+    /// <summary>
+    /// restores persisted view model state from previous app sessions, if any exists and is valid
+    /// </summary>
+    public void RestoreState()
+    {
+
+        //SelectedVoice property
+        string savedVoice = string.Empty;
+        if (_prefsService.ContainsKey(APP_SETTINGS_VOICE_KEY))
+        {
+            savedVoice = _prefsService.Get(APP_SETTINGS_VOICE_KEY, string.Empty) ?? string.Empty;
+        }
+        SelectedVoice = (!string.IsNullOrEmpty(savedVoice) && Voices.Contains(savedVoice)) ? savedVoice : Voices[0];
+
+        //Volume property
+        if (_prefsService.ContainsKey(APP_SETTINGS_VOLUME_KEY))
+        {
+            Volume = Math.Clamp(_prefsService.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
+        }
+
+        //Pitch property
+        if (_prefsService.ContainsKey(APP_SETTINGS_PITCH_KEY))
+        {
+            Pitch = Math.Clamp(_prefsService.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
+        }
+
+    } //RestoreState
+
+
+    /// <summary>
+    /// saves view model persisted property values in application preferences key/value store
     /// </summary>
     public void SaveState()
 	{
