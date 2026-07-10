@@ -226,13 +226,13 @@ public partial class TextToSpeechViewModel : ViewModelBase
         //Volume property
         if (_prefsService.ContainsKey(APP_SETTINGS_VOLUME_KEY))
         {
-            Volume = Math.Clamp(_prefsService.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX);
+            Volume = (float)Math.Round(Math.Clamp(_prefsService.Get(APP_SETTINGS_VOLUME_KEY, (float)(VOLUME_MAX / 2 + VOLUME_MIN)), VOLUME_MIN, VOLUME_MAX),2);
         }
 
         //Pitch property
         if (_prefsService.ContainsKey(APP_SETTINGS_PITCH_KEY))
         {
-            Pitch = Math.Clamp(_prefsService.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX);
+            Pitch = (float)Math.Round(Math.Clamp(_prefsService.Get(APP_SETTINGS_PITCH_KEY, (float)(PITCH_MAX / 2 + PITCH_MIN)), PITCH_MIN, PITCH_MAX),2);
         }
 
     } //RestoreState

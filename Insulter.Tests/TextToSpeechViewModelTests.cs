@@ -84,7 +84,7 @@ public class TextToSpeechViewModelTests
 
 
     [Test]
-    public void TestAutoSave()
+    public void TestSaveState()
     {
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
@@ -111,37 +111,35 @@ public class TextToSpeechViewModelTests
             Assert.That(mockPrefsService.Get("Pitch", string.Empty), Is.EqualTo("1.1"));
         }
 
-    } //TestAutoSave
+    } //TestSaveState
 
+    private const string APP_SETTINGS_VOICE_KEY = "SelectedVoice";
+    private const string APP_SETTINGS_VOLUME_KEY = "Volume";
+    private const string APP_SETTINGS_PITCH_KEY = "Pitch";
 
     [Test]
-    public void TestLoadPropertyValuesFromPreferences()
+    public void TestRestoreState()
     {
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
-        var mockTtsService = new MockTtsService();
-        var mockPrefsService = new MockPreferencesService();
-        var viewModel1 = new TextToSpeechViewModel(mockTtsService, mockPrefsService)
-        {
-            AutoSave = true,
-            SelectedVoice = "fr (fr-FRFrench (France))",
-            Volume = 0.7f,
-            Pitch = 1.1f
-        };
-        viewModel1.SaveState();
+        string selectedVoice = "fr (fr-FRFrench (France))";
+        double volume = 0.70f, pitch = 1.10f;
 
+        var mps = new MockPreferencesService();
+        mps.Set(APP_SETTINGS_VOICE_KEY, selectedVoice);
+        mps.Set(APP_SETTINGS_VOLUME_KEY, volume.ToString());
+        mps.Set(APP_SETTINGS_PITCH_KEY, pitch.ToString());
 
-        // Create a new instance of the view model to verify that it loads the property values from the preferences service
-        var viewModel2 = new TextToSpeechViewModel(mockTtsService, mockPrefsService);
-        Task.Delay(500).Wait();
+        var viewModel = new TextToSpeechViewModel(new MockTtsService(), mps);
+
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(viewModel2.SelectedVoice, Is.EqualTo("fr (fr-FRFrench (France))"));
-            Assert.That(viewModel2.Volume, Is.EqualTo(0.7f));
-            Assert.That(viewModel2.Pitch, Is.EqualTo(1.1f));
+            Assert.That(viewModel.SelectedVoice, Is.EqualTo(selectedVoice));
+            Assert.That(viewModel.Volume, Is.EqualTo(volume));
+            Assert.That(viewModel.Pitch, Is.EqualTo(pitch));
         }
 
 
-    } //TestLoadPropertyValuesFromPreferences
+    } //TestRestoreState
 
 } //TextToSpeechViewModelTests

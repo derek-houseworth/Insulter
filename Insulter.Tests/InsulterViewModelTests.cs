@@ -60,6 +60,6 @@ public class InsulterViewModelTests
         }
 
 
-    } //TextToSpeechViewModelTests
+    } //TestSpeakAllInsults
 
 } //InsulterViewModelTests
