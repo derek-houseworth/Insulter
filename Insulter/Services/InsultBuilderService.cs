@@ -23,7 +23,7 @@ public class InsultBuilderService
 	private static bool StartsWithVowel(string word)
     {
 
-		char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+		char[] vowels = [ 'a', 'e', 'i', 'o', 'u' ];
         return vowels.Contains(word.ToLower()[0]);        
 
 	} //StartsWithVowel

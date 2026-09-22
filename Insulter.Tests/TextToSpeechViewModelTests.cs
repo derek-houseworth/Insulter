@@ -1,16 +1,20 @@
-﻿using System.Reflection;
+﻿using Insulter.Tests.Services;
 using Insulter.ViewModels;
-using Insulter.Tests.Services;
+using System.Reflection;
 
 namespace Insulter.Tests;
 
 public class TextToSpeechViewModelTests
 {
 
-    [SetUp]
-    public void Setup()
-    {
-    } //Setup
+    private const string DEFAULT_VOICE = "Microsoft David (en-US)";
+    private const string TEST_VOICE = "Microsoft Zira (en-US)";
+
+    private const float DEFAULT_PITCH = 1.0f;
+    private const float TEST_PITCH = 1.4f;
+
+    private const float DEFAULT_VOLUME = 0.5f;
+    private const float TEST_VOLUME = 0.6f;
 
 
     [Test]
@@ -24,13 +28,14 @@ public class TextToSpeechViewModelTests
         {
             Assert.That(viewModel, Is.Not.Null);
             Assert.That(viewModel.Voices, Has.Count.GreaterThan(0));
-            Assert.That(viewModel.SelectedVoice, Is.EqualTo("de (de-DEGerman (Germany))"));
+
+            Assert.That(viewModel.SelectedVoice, Is.EqualTo(DEFAULT_VOICE));
             Assert.That(viewModel.Initialized, Is.True);
             Assert.That(viewModel.CanSpeak, Is.True);
-            Assert.That(viewModel.AutoSave, Is.False);
+            Assert.That(viewModel.AutoSave, Is.True);
             Assert.That(viewModel.SpeakNow.CanExecute(null), Is.True);
-            Assert.That(viewModel.Pitch, Is.EqualTo(1.0f));
-            Assert.That(viewModel.Volume, Is.EqualTo(0.5f));
+            Assert.That(viewModel.Pitch, Is.EqualTo(DEFAULT_PITCH));
+            Assert.That(viewModel.Volume, Is.EqualTo(DEFAULT_VOLUME));
 
         }
 
@@ -55,13 +60,13 @@ public class TextToSpeechViewModelTests
     public void TestVoiceSelection()
     {
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
-
+        
         var viewModel = new TextToSpeechViewModel(new MockTtsService(), new MockPreferencesService())
         {
-            SelectedVoice = "es (es-ESSpanish (Spain))"
+            SelectedVoice = TEST_VOICE
         };
             
-        Assert.That(viewModel.SelectedVoice, Is.EqualTo("es (es-ESSpanish (Spain))"));
+        Assert.That(viewModel.SelectedVoice, Is.EqualTo(TEST_VOICE));
         
 
     } //TestVoiceSelection
@@ -72,13 +77,13 @@ public class TextToSpeechViewModelTests
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
         var viewModel = new TextToSpeechViewModel(new MockTtsService(), new MockPreferencesService())
         {
-            Volume = 0.8f,
-            Pitch = 1.2f
+            Volume = TEST_VOLUME,
+            Pitch = TEST_PITCH
         };
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(viewModel.Volume, Is.EqualTo(0.8f));
-            Assert.That(viewModel.Pitch, Is.EqualTo(1.2f));
+            Assert.That(viewModel.Volume, Is.EqualTo(TEST_VOLUME));
+            Assert.That(viewModel.Pitch, Is.EqualTo(TEST_PITCH));
         }
     } //TestVolumeAndPitch
 
@@ -88,27 +93,25 @@ public class TextToSpeechViewModelTests
     {
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
+
         var mockTtsService = new MockTtsService();
         var mockPrefsService = new MockPreferencesService();
         var viewModel = new TextToSpeechViewModel(mockTtsService, mockPrefsService)
         {
-            AutoSave = true
+            SelectedVoice = TEST_VOICE,
+            Volume = TEST_VOLUME,
+            Pitch = TEST_PITCH
         };
-
-        //change property values from defaults after instantiation to trigger  viewmodel's auto-save functionality
-        viewModel.SelectedVoice = "fr (fr-FRFrench (France))";
-        viewModel.Volume = 0.7f;
-        viewModel.Pitch = 1.1f;
 
         //verify property values were saved to the preferences service
         using (Assert.EnterMultipleScope())
         {
             Assert.That(mockPrefsService.ContainsKey("SelectedVoice"), Is.True);
-            Assert.That(mockPrefsService.Get("SelectedVoice", string.Empty), Is.EqualTo("fr (fr-FRFrench (France))"));
+            Assert.That(mockPrefsService.Get("SelectedVoice", string.Empty), Is.EqualTo(TEST_VOICE));
             Assert.That(mockPrefsService.ContainsKey("Volume"), Is.True);
-            Assert.That(mockPrefsService.Get("Volume", string.Empty), Is.EqualTo("0.7"));
+            Assert.That(mockPrefsService.Get("Volume", string.Empty), Is.EqualTo(TEST_VOLUME.ToString()));
             Assert.That(mockPrefsService.ContainsKey("Pitch"), Is.True);
-            Assert.That(mockPrefsService.Get("Pitch", string.Empty), Is.EqualTo("1.1"));
+            Assert.That(mockPrefsService.Get("Pitch", string.Empty), Is.EqualTo(TEST_PITCH.ToString()));
         }
 
     } //TestSaveState
@@ -122,21 +125,19 @@ public class TextToSpeechViewModelTests
     {
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
-        string selectedVoice = "fr (fr-FRFrench (France))";
-        double volume = 0.70f, pitch = 1.10f;
 
         var mps = new MockPreferencesService();
-        mps.Set(APP_SETTINGS_VOICE_KEY, selectedVoice);
-        mps.Set(APP_SETTINGS_VOLUME_KEY, volume.ToString());
-        mps.Set(APP_SETTINGS_PITCH_KEY, pitch.ToString());
+        mps.Set(APP_SETTINGS_VOICE_KEY, TEST_VOICE);
+        mps.Set(APP_SETTINGS_VOLUME_KEY, TEST_VOLUME.ToString());
+        mps.Set(APP_SETTINGS_PITCH_KEY, TEST_PITCH.ToString());
 
         var viewModel = new TextToSpeechViewModel(new MockTtsService(), mps);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(viewModel.SelectedVoice, Is.EqualTo(selectedVoice));
-            Assert.That(viewModel.Volume, Is.EqualTo(volume));
-            Assert.That(viewModel.Pitch, Is.EqualTo(pitch));
+            Assert.That(viewModel.SelectedVoice, Is.EqualTo(TEST_VOICE));
+            Assert.That(viewModel.Volume, Is.EqualTo(TEST_VOLUME));
+            Assert.That(viewModel.Pitch, Is.EqualTo(TEST_PITCH));
         }
 
 

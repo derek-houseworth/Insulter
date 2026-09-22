@@ -7,43 +7,53 @@ namespace Insulter.ViewModels;
 public partial class InsulterViewModel : TextToSpeechViewModel 
 {
 
-    private const string WELCOME_MESSAGE = "Salutations! Prithee selectest thou the Shakespearean insult thou wouldst hear me utter.";
-
     /// <summary>
     /// count of number of insults spoken
     /// </summary>
-    private int _insultsSpoken = 0;
     public int InsultsSpoken
     {
-        get => _insultsSpoken;
-        private set => SetProperty(ref _insultsSpoken, value);
+        get;
+        private set
+        {
+            if (field != value)
+            {
+                SetProperty(ref field, value);
+            }
+        }
+    } = 0;
+    
 
-	} //InsultsSpoken
-
-
-	/// <summary>
-	/// insults list
-	/// </summary>
-	private ObservableCollection<string> _insultsList = [];
+    /// <summary>
+    /// insults list
+    /// </summary>
     public ObservableCollection<string> InsultsList
     {
-        get => _insultsList; 
-        private set => SetProperty(ref _insultsList, value);
-
-	} //InsultsList
-
-
-
+        get;
+        private set
+        {
+            if (field != value)
+            {
+                SetProperty(ref field, value);
+            }
+        }
+    } = [];
+    
 
     /// <summary>
     /// string containing currently selected insult
     /// </summary>
-    private string _selectedInsult = String.Empty; 
-	public string SelectedInsult
+    public string SelectedInsult
     {
-        get => _selectedInsult;
-        set => SetProperty(ref _selectedInsult, value);
-    }
+        get;
+        set
+        {
+            if (field != value)
+            {
+                SetProperty(ref field, value);
+            }
+        }
+    } = string.Empty;
+    
 
     /// <summary>
     /// Creates and initializes new InsulterViewModel object
@@ -55,7 +65,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 
         //initialize insults list with insults from insult builder service and insert welcome message at index 0
         InsultsList = InsultBuilderService.GetInsults();
-        InsultsList.Insert(0, WELCOME_MESSAGE);
+        InsultsList.Insert(0, Properties.Resources.WelcomeMessage);
         Initialized &= InsultsList.Count > 1;
 
         //timer to delay speaking welcome message at index 0 of insults list until 1 second after app startup
@@ -64,7 +74,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 			if (Initialized)
 			{
 				
-                SelectedInsult = WELCOME_MESSAGE;
+                SelectedInsult = Properties.Resources.WelcomeMessage;
                 //SpeakNowAsync(InsultsList[0]);
             }
 
@@ -73,7 +83,6 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 		});
 
 	} //InsulterViewModel
-
 
 
     private void OnInsultSpoken(string spokenInsult)

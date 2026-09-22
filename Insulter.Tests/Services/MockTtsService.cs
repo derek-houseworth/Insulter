@@ -8,13 +8,11 @@ namespace Insulter.Tests.Services
         {
 
             return await Task.FromResult<List<VoiceLocale>>(
-                [
-                    new VoiceLocale("de-DE", "German (Germany)", "de", "DE"),
-                    new VoiceLocale("en-GB", "English (UK)", "en", "GB"),
-                    new VoiceLocale("en-US", "English (US)", "en", "US"),
-                    new VoiceLocale("fr-FR", "French (France)", "fr", "FR"),
-                    new VoiceLocale("es-ES", "Spanish (Spain)", "es", "ES"),
-                ]);
+            [
+                new VoiceLocale("en-US", "", "Microsoft David", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices\\Tokens\\MSTTS_V110_enUS_DavidM"),
+                new VoiceLocale("en-US", "", "Microsoft Zira", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices\\Tokens\\MSTTS_V110_enUS_ZiraM"),
+                new VoiceLocale("en-US", "", "Microsoft Mark", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices\\Tokens\\MSTTS_V110_enUS_MarkM")
+            ]);
 
         } //GetVoiceLocalesAsync
     }

@@ -16,7 +16,7 @@ public class InsultBuilderTests
 		TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
 		var insult = InsultBuilderService.GetInsult();
-		TestHelper.DebugWriteLine(insult);
+		TestHelper.DebugWriteLine($"\t{insult}");
 		Assert.That(string.IsNullOrEmpty(insult), Is.False);
 
 	} //TestGetInsult
@@ -31,8 +31,8 @@ public class InsultBuilderTests
 		var insultsList = InsultBuilderService.GetInsults();
 		Assert.That(insultsList, Is.Not.Null);
 
-            using (Assert.EnterMultipleScope())
-            {
+        using (Assert.EnterMultipleScope())
+        {
 			//verify list not empty 
 			Assert.That(insultsList, Has.Count.GreaterThan(0));
 
@@ -43,10 +43,11 @@ public class InsultBuilderTests
 			foreach (var insult in insultsList)
 			{
 				Assert.That(string.IsNullOrEmpty(insult), Is.False);
-				TestHelper.DebugWriteLine(insult);
-			}
-		}
+                TestHelper.DebugWriteLine($"\t{insult}");
+            }
+        }
 
 	} //TestGetInsults
+
 
 } //InsultBuilderTests

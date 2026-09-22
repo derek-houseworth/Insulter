@@ -25,52 +25,59 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// </summary>
     public ICommand SpeakNow { private set; get; }
 
-	private readonly List<VoiceLocale> _voiceLocales = [];
+	private List<VoiceLocale> _voiceLocales = [];
 
-	/// <summary>
-	/// List of strings representing friendly name of all TTS voices currently installed on device
-	/// </summary>
-	private ObservableCollection<string> _voices = [];
+    /// <summary>
+    /// List of strings representing friendly name of all TTS voices currently installed on device
+    /// </summary>
     public ObservableCollection<string> Voices
     {
-        get => _voices;
-        private set => SetProperty(ref _voices, value);
+        get;
+        private set 
+        {
+            if (field != value)
+            {
+                SetProperty(ref field, value);
+            } 
+        }
+    } = [];
 
-	} //Voices
 
-
-	/// <summary>
-	/// String representing currently selected voice from TTS voices list
-	/// </summary>
-	private string _selectedVoice = string.Empty;
+    /// <summary>
+    /// String representing currently selected voice from TTS voices list
+    /// </summary>
     public string SelectedVoice
     {
-        get =>_selectedVoice;
-        set 
+        get;
+        set
         {
-            if (value != _selectedVoice && Voices.Contains(value))
+            if (field != value && Voices.Contains(value))
             {
-				SetProperty(ref _selectedVoice, value);
+                SetProperty(ref field, value);
                 if (AutoSave && Initialized)
                 {
                     SaveState();
                 }
-			}			
-		} 
+            }
+        }
 
-    } //SelectedLocale
+    } = string.Empty;
 
 
 	/// <summary>
 	/// true if speaking is possible, i.e. initialization successfully and not currently speaking
 	/// </summary>
-	private bool _canSpeak = false;
     public bool CanSpeak
     {
-        get => _canSpeak;
-        private set => SetProperty(ref _canSpeak, value);
-
-	} //CanSpeak
+        get;
+        private set
+        {
+            if (field != value)
+            {
+                SetProperty(ref field, value);
+            }
+        }
+    }  = false;
 
 
 	/// <summary>
@@ -78,22 +85,21 @@ public partial class TextToSpeechViewModel : ViewModelBase
 	/// </summary>
 	const float VOLUME_MIN = 0.0f;
     const float VOLUME_MAX = 1.0f;
-    private float _volume = 0.5f;
-	public float Volume
+    public float Volume
     {
-        get => _volume;
-        set 
+        get;
+        set
         {
-            if (_volume != value)
+            if (field != value)
             {
-				SetProperty(ref _volume, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
-				if (AutoSave && Initialized)
-				{
-					SaveState();
-				}
-			}
-		}		
-	} //Volume
+                SetProperty(ref field, Math.Clamp(value, VOLUME_MIN, VOLUME_MAX));
+                if (AutoSave && Initialized)
+                {
+                    SaveState();
+                }
+            }
+        }
+    } = (VOLUME_MAX+VOLUME_MIN) / 2;
 
 
     /// <summary>
@@ -101,46 +107,55 @@ public partial class TextToSpeechViewModel : ViewModelBase
     /// </summary>
     const float PITCH_MIN = 0.0f;
     const float PITCH_MAX = 2.0f;
-    private float _pitch = 1.0f;
     public float Pitch
     {
-        get => _pitch;
+        get;
         set
         {
-            if (_pitch != value)
+            if (field != value)
             {
-				SetProperty(ref _pitch, Math.Clamp(value, PITCH_MIN, PITCH_MAX));
-				if (AutoSave && Initialized)
-				{
-					SaveState();
-				}
-			}
-		}
-	} //Pitch
+                SetProperty(ref field, Math.Clamp(value, PITCH_MIN, PITCH_MAX));
+                if (AutoSave && Initialized)
+                {
+                    SaveState();
+                }
+            }
+        }
+    } = (PITCH_MAX+PITCH_MIN)/2;
 
 
     /// <summary>
     /// true if view model initialization has successfully completed, false otherwise
     /// </summary>
-    internal bool _initialized = false;
     public bool Initialized
     {
-        get => _initialized;
-        internal set => SetProperty(ref _initialized, value);
+        get;
+        internal set 
+        {
+            if (field != value)
+            { 
+                 SetProperty(ref field, value);
+            }
+        }
 
-	} //Initialized
+    } = false;
 
 
     /// <summary>
     /// causes ViewModel to automatically persist any changes to persistable properties when changed
     /// </summary>
-    internal bool _autoSave = false;
     public bool AutoSave
-    { 
-        get => _autoSave;
-        set => SetProperty(ref _autoSave, value);
-
-    } //autoSave
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                SetProperty(ref field, value);
+            }
+        }
+    } = true;
+    
 
     private readonly ITextToSpeechService _ttsService;
     private readonly IPreferencesService _prefsService;
@@ -176,24 +191,16 @@ public partial class TextToSpeechViewModel : ViewModelBase
 		Debug.WriteLine("*** InitializeViewModelAsync: start");
         
         //build and sort voice locales list
-        foreach (VoiceLocale voiceLocale in await _ttsService.GetVoiceLocalesAsync())
-        {
-            //Debug.WriteLine(locale.Name);
-            _voiceLocales.Add(voiceLocale);
-        }
+        _voiceLocales = await _ttsService.GetVoiceLocalesAsync();
 		Debug.WriteLine($"InitializeViewModelAsync: found {_voiceLocales.Count} locales");
         _voiceLocales.Sort(new Comparison<VoiceLocale>((x, y) => String.Compare(x.Name, y.Name)));
         bool isAndroid = DeviceInfo.Current.Platform == DevicePlatform.Android;
 		foreach (VoiceLocale voiceLocale in _voiceLocales)
         {
-            //locale name string value on Android already contains language and country;
-            //only add lang & country codes to display string on non-Android platforms
-            string item = voiceLocale.Name;
-            if (!isAndroid)
-            {
-				item += $" ({voiceLocale.Language}{voiceLocale.Country})";
-			}            
-			Voices.Add(item);
+            //locale name string value on Android already contains language and country
+            string item = isAndroid ? $"{voiceLocale.Name} - {voiceLocale.Id}" : 
+                $"{voiceLocale.Name} ({voiceLocale.Language}{voiceLocale.Country})";            
+            Voices.Add(item);
 		}
 
         //restore values of persisted view model properties if values exist and are valid
