@@ -10,61 +10,32 @@ public partial class InsulterViewModel : TextToSpeechViewModel
     /// <summary>
     /// count of number of insults spoken
     /// </summary>
-    public int InsultsSpoken
-    {
-        get;
-        private set
-        {
-            if (field != value)
-            {
-                SetProperty(ref field, value);
-            }
-        }
-    } = 0;
+    public int InsultsSpoken { get; private set => SetProperty(ref field, value); } = 0;
     
-
     /// <summary>
     /// insults list
     /// </summary>
-    public ObservableCollection<string> InsultsList
-    {
-        get;
-        private set
-        {
-            if (field != value)
-            {
-                SetProperty(ref field, value);
-            }
-        }
-    } = [];
+    public ObservableCollection<string> InsultsList { get; private set => SetProperty(ref field, value); } = [];
     
-
     /// <summary>
     /// string containing currently selected insult
     /// </summary>
-    public string SelectedInsult
-    {
-        get;
-        set
-        {
-            if (field != value)
-            {
-                SetProperty(ref field, value);
-            }
-        }
-    } = string.Empty;
-    
+    public string SelectedInsult { get; set => SetProperty(ref field, value); }  = string.Empty;
+
+    private string _alternateInsultFilesPath = "";
 
     /// <summary>
     /// Creates and initializes new InsulterViewModel object
     /// </summary>
-    public InsulterViewModel(ITextToSpeechService ttsService, IPreferencesService prefsService) : base(ttsService, prefsService)
+    public InsulterViewModel(ITextToSpeechService ttsService, IPreferencesService prefsService, 
+            string alternateInsultsPath = "") : base(ttsService, prefsService)
 	{
         //register call-back for when insult has been spoken
         SpeakingComplete += OnInsultSpoken;
 
         //initialize insults list with insults from insult builder service and insert welcome message at index 0
-        InsultsList = InsultBuilderService.GetInsults();
+        _alternateInsultFilesPath = alternateInsultsPath;
+        InsultsList = InsultBuilderService.GetInsults(_alternateInsultFilesPath).Result;
         InsultsList.Insert(0, Properties.Resources.WelcomeMessage);
         Initialized &= InsultsList.Count > 1;
 
@@ -103,7 +74,7 @@ public partial class InsulterViewModel : TextToSpeechViewModel
 		//load insults if list is empty
 		if (InsultsList.Count == 0)
 		{
-			InsultsList = InsultBuilderService.GetInsults();
+			InsultsList = InsultBuilderService.GetInsults(_alternateInsultFilesPath).Result;
 		}
 
 	} //OnInsultSpoken

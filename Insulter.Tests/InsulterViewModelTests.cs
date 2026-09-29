@@ -1,6 +1,6 @@
-﻿using Insulter.ViewModels;
+﻿using Insulter.Tests.Services;
+using Insulter.ViewModels;
 using System.Reflection;
-using Insulter.Tests.Services;
 
 namespace Insulter.Tests;
 
@@ -18,7 +18,8 @@ public class InsulterViewModelTests
 	{
 		TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
 
-		var viewModel = new InsulterViewModel(new MockTtsService(), new MockPreferencesService());
+		var viewModel = new InsulterViewModel(new MockTtsService(), new MockPreferencesService(),
+            Path.Combine(AppContext.BaseDirectory, "Testfiles"));
         using (Assert.EnterMultipleScope())
         {
 			Assert.That(viewModel, Is.Not.Null);
@@ -37,7 +38,8 @@ public class InsulterViewModelTests
     {
         TestHelper.DebugWriteLine($"{GetType().Name}.{MethodBase.GetCurrentMethod()?.Name}:");
         
-		var viewModel = new InsulterViewModel(new MockTtsService(), new MockPreferencesService());
+		var viewModel = new InsulterViewModel(new MockTtsService(), new MockPreferencesService(),
+            Path.Combine(AppContext.BaseDirectory, "Testfiles"));
         using (Assert.EnterMultipleScope())
         {
             int insultsSpoken = 0;

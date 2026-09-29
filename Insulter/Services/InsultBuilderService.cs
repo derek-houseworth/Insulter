@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Reflection;
 using System.Text;
 
 namespace Insulter.Services;
@@ -11,20 +10,20 @@ public class InsultBuilderService
 	private const string ADVERBS_FILE_NAME = "insultAdverbs.txt";
 	private const string NOUNS_FILE_NAME = "insultNouns.txt";
 
-	private const string DATA_FILE_PATH = "Insulter.Data.";
 	private const string INSULT_PREFIX = "Thou art a";
 
+    private static readonly char[] _vowels = ['a', 'e', 'i', 'o', 'u'];
 
-	/// <summary>
-	/// determines if word begins with a vowel
-	/// </summary>
-	/// <param name="word">string word to check</param>
-	/// <returns>returns true if first character in word is a vowel, false otherwise</returns>
-	private static bool StartsWithVowel(string word)
+
+    /// <summary>
+    /// determines if word begins with a vowel
+    /// </summary>
+    /// <param name="word">string word to check</param>
+    /// <returns>returns true if first character in word is a vowel, false otherwise</returns>
+    private static bool StartsWithVowel(string word)
     {
-
-		char[] vowels = [ 'a', 'e', 'i', 'o', 'u' ];
-        return vowels.Contains(word.ToLower()[0]);        
+		
+        return _vowels.Contains(word.ToLower()[0]);        
 
 	} //StartsWithVowel
 
@@ -34,15 +33,17 @@ public class InsultBuilderService
 	/// from adjectives, adverbs and nouns lists
 	/// </summary>
 	/// <returns>List<string> containing insults</string></returns>
-	public static ObservableCollection<string>GetInsults(bool getSingleInsult = false)
+	public static async Task<ObservableCollection<string>>GetInsults(string alternatePath = "")
     {
         Random random = new();
 
-        List<string> adjectives = ReadWordListFromResource(DATA_FILE_PATH + ADJECTIVES_FILE_NAME),
-            adverbs = ReadWordListFromResource(DATA_FILE_PATH + ADVERBS_FILE_NAME),
-            nouns = ReadWordListFromResource(DATA_FILE_PATH + NOUNS_FILE_NAME);
+        string insultsDir = AppContext.BaseDirectory;
 
-		ObservableCollection<string> insults = [];
+        List<string> adjectives = await ReadWordList(ADJECTIVES_FILE_NAME, alternatePath),
+            adverbs = await ReadWordList(ADVERBS_FILE_NAME, alternatePath),
+            nouns = await ReadWordList(NOUNS_FILE_NAME, alternatePath);
+
+        ObservableCollection<string> insults = [];
 
         while (adjectives.Count > 0)
         {
@@ -65,8 +66,7 @@ public class InsultBuilderService
             nouns.RemoveAt(wordIndex);
 
             insults.Add(insult.ToString());
-
-			if (getSingleInsult) break;
+			
         }
 
         //System.Diagnostics.Debug.WriteLine($"generated {insultsList.Count} insults");
@@ -74,25 +74,20 @@ public class InsultBuilderService
         return insults;
 
 	} //GetInsults
-
 	
-	public static string GetInsult()
-	{
-		return GetInsults(true)[0];
-	}
 
 	/// <summary>
 	/// loads word list from resource file in executing assembly specified by resourceId
 	/// </summary>
-	/// <param name="resourceId">name of resource file containing words in text format, 1 word per line</param>
+	/// <param name="fileName">name of file containing words in text format, 1 word per line</param>
 	/// <returns>List<string> containing words read from resource file</string></returns>
-	private static List<string> ReadWordListFromResource(string resourceId)
+	private static async Task <List<string>> ReadWordList(string fileName, string alternatePath = "")
     {
-		ArgumentNullException.ThrowIfNull(resourceId);
-
 		List<string> insultWordsList = [];
-		using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceId);
-		if (stream is not null)
+
+        using var stream = string.IsNullOrEmpty(alternatePath) ? await FileSystem.OpenAppPackageFileAsync(fileName) :
+            File.OpenRead(System.IO.Path.Combine(alternatePath, fileName));
+        if (stream is not null)
 		{
             using StreamReader reader = new(stream);
             if (reader is not null)

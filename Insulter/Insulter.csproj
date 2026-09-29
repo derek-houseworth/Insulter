@@ -64,13 +64,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\AppIcon\sicon.svg" />
+	  <MauiAsset Remove="Resources\Raw\AboutAssets.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Data\insultAdjectives.txt" />
-	  <EmbeddedResource Include="Data\insultAdverbs.txt" />
-	  <EmbeddedResource Include="Data\insultNouns.txt" />
+	  <None Remove="Resources\AppIcon\sicon.svg" />
+	  <None Remove="Resources\Raw\insultAdjectives.txt" />
+	  <None Remove="Resources\Raw\insultAdverbs.txt" />
+	  <None Remove="Resources\Raw\insultNouns.txt" />
 	</ItemGroup>
 
 
@@ -94,6 +95,26 @@
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <MauiAsset Update="Resources\Raw\insultAdjectives.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Update="Resources\Raw\insultAdverbs.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Update="Resources\Raw\insultNouns.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiAsset>
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <None Update="Resources\Raw\AboutAssets.txt">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 
